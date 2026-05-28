@@ -517,9 +517,9 @@ header {
 <div class="api-banner" id="api-banner">
   🔑 Gemini APIキーが必要です <span class="free-tag">完全無料</span><br>
   <strong>取得：</strong><a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → Create API key<br>
-  クレジットカード不要・1日1,500回まで無料
+  クレジットカード不要・1日1,500回まで無料<br>※キーは AIza... または AQ. で始まります
   <div class="api-key-row">
-    <input class="api-key-input" id="api-key-input" type="password" placeholder="AIza..."/>
+    <input class="api-key-input" id="api-key-input" type="password" placeholder="APIキーを貼り付け..."/>
     <button class="api-key-save" onclick="saveApiKey()">保存</button>
   </div>
 </div>
@@ -596,7 +596,7 @@ window.onload = () => {
 
 function saveApiKey() {
   const val = document.getElementById('api-key-input').value.trim();
-  if (!val.startsWith('AIza')) { alert('正しいAPIキーを入力してください（AIza から始まります）'); return; }
+  if (val.length < 10) { alert('APIキーを正しく入力してください'); return; }
   apiKey = val;
   localStorage.setItem('gemini_api_key', apiKey);
   document.getElementById('api-banner').style.display = 'none';
