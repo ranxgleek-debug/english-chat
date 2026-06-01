@@ -179,7 +179,7 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 </head>
 <body>
 <header>
-  <div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;">🗣️</div><div><div class="app-title">Shabery with AI</div><div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:-2px;">AI英会話・読解アプリ</div></div></div>
+  <div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;padding:0;"><img id="header-coach-img" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;" alt="coach"/></div><div><div class="app-title">Shabery with AI</div><div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:-2px;">AI英会話・読解アプリ</div></div></div>
   <button class="api-status ng" id="api-status-btn" onclick="showApiModal()">APIキー設定</button>
 </header>
 <div class="modal-overlay" id="api-modal">
@@ -269,7 +269,7 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
     </div>
     <!-- ワイプ＋情報 -->
     <div style="display:flex;align-items:center;gap:12px;">
-      <div id="coach-wipe" style="width:56px;height:74px;border-radius:12px;overflow:hidden;border:2.5px solid var(--blue);box-shadow:0 2px 8px rgba(0,0,0,0.12);flex-shrink:0;transition:border-color 0.3s;position:relative;">
+      <div id="coach-wipe" style="width:80px;height:106px;border-radius:14px;overflow:hidden;border:2.5px solid var(--blue);box-shadow:0 2px 8px rgba(0,0,0,0.12);flex-shrink:0;transition:border-color 0.3s;position:relative;">
         <img id="coach-avatar-img" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;" alt="coach"/>
         <div style="position:absolute;bottom:3px;left:3px;width:8px;height:8px;border-radius:50%;border:1.5px solid white;" id="coach-online-dot" style="background:#34C759;"></div>
       </div>
@@ -310,40 +310,105 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 
 </div>
 <!-- VIEW: 読解 -->
-<div class="view" id="view-reading">
-  <div class="reading-tabs">
-    <button class="rtab active" id="rtab-input" onclick="showRTab('input')">入力</button>
-    <button class="rtab" id="rtab-summary" onclick="showRTab('summary')" disabled>要約</button>
-    <button class="rtab" id="rtab-structure" onclick="showRTab('structure')" disabled>構文</button>
-  
-    <button class="rtab" id="rtab-rvocab" onclick="showRTab('rvocab')" disabled>単語</button>
-  </div>
-  <div class="scroll-area">
-    <div class="rscreen active" id="rs-input">
-      <div class="card">
-        <div class="card-title">🤖 AIで英文を自動生成（TOEIC 850-940レベル）</div>
-        <div class="sample-btns" style="margin-bottom:0">
-          <button class="sample-btn" onclick="generateText('business_email')">📧 ビジネスメール</button>
-          <button class="sample-btn" onclick="generateText('announcement')">📢 社内通知</button>
-          <button class="sample-btn" onclick="generateText('news')">📰 ニュース記事</button>
-          <button class="sample-btn" onclick="generateText('report')">📊 ビジネスレポート</button>
-          <button class="sample-btn" onclick="generateText('negotiation')">🤝 契約・交渉</button>
-          <button class="sample-btn" onclick="generateText('hr')">👥 人事・採用</button>
-        </div>
-        <div id="generate-status" style="font-size:13px;color:var(--muted);margin-top:10px;min-height:18px;"></div>
+<div class="view" id="view-reading" style="background:#0d0d1a;color:white;">
+
+  <!-- ヘッダー -->
+  <div style="padding:16px 16px 0;flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <div style="font-size:18px;font-weight:900;color:white;letter-spacing:-0.5px;">📖 読解トレーニング</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;">読んで、理解して、話す</div>
       </div>
-      <div class="card">
-        <div class="card-title">📋 または英文を直接貼り付け</div>
-        <textarea class="r-textarea" id="reading-input" placeholder="ここに英語のテキストを貼り付け..."></textarea>
-      </div>
-      <button class="btn-primary" id="analyze-btn" onclick="analyze()">✨ 分析スタート</button>
+      <div id="reading-api-status" style="font-size:10px;font-weight:700;padding:4px 10px;background:rgba(52,199,89,0.15);color:#34C759;border-radius:20px;">✓ API接続済</div>
     </div>
-    <div class="rscreen" id="rs-summary"><div id="summary-content"></div><button class="btn-next" id="to-structure" onclick="showRTab('structure')">構文解説へ →</button></div>
-    <div class="rscreen" id="rs-structure"><div id="structure-content"></div><button class="btn-next" id="to-quiz" onclick="showRTab('quiz')">読解問題へ →</button></div>
-    
-    <div class="rscreen" id="rs-rvocab"><div id="rvocab-content"></div><button class="btn-primary" style="margin-top:8px" onclick="goToFlash()">フラッシュカードで練習 →</button></div>
+
+    <!-- タブ -->
+    <div style="display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:12px;padding:3px;">
+      <button class="rtab active" id="rtab-input" onclick="showRTab('input')" style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.12);color:white;">入力</button>
+      <button class="rtab" id="rtab-summary" onclick="showRTab('summary')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">要約</button>
+      <button class="rtab" id="rtab-structure" onclick="showRTab('structure')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">構文</button>
+      <button class="rtab" id="rtab-rvocab" onclick="showRTab('rvocab')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">単語</button>
+    </div>
+  </div>
+
+  <!-- スクロールエリア -->
+  <div class="scroll-area" style="padding:12px 16px;">
+
+    <!-- 入力画面 -->
+    <div class="rscreen active" id="rs-input">
+
+      <!-- コーチから課題文 -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,0.2);">
+            <img id="reading-coach-img" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;"/>
+          </div>
+          <div>
+            <div id="reading-coach-name" style="font-size:13px;font-weight:800;color:white;"></div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);">今日の課題文を出してもらう</div>
+          </div>
+        </div>
+        <button onclick="coachGenerateText()" style="width:100%;padding:13px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:14px;color:white;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;">
+          💪 今日のメニューを受け取る
+        </button>
+        <div id="generate-status" style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:8px;min-height:16px;text-align:center;"></div>
+      </div>
+
+      <!-- 区切り -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1);"></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:600;">または</div>
+        <div style="flex:1;height:0.5px;background:rgba(255,255,255,0.1);"></div>
+      </div>
+
+      <!-- 自分で貼り付け -->
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:8px;">📋 自分で英文を貼り付け</div>
+        <textarea id="reading-input" placeholder="ここに英語のテキストを貼り付け..." style="width:100%;min-height:120px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:white;font-size:14px;font-family:inherit;resize:vertical;outline:none;line-height:1.6;"></textarea>
+      </div>
+
+      <!-- 分析ボタン -->
+      <button id="analyze-btn" onclick="analyze()" style="width:100%;padding:15px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);border-radius:16px;color:white;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;">
+        ✨ 分析スタート
+      </button>
+    </div>
+
+    <!-- 要約画面 -->
+    <div class="rscreen" id="rs-summary">
+      <div id="summary-content"></div>
+      <button class="btn-next" id="to-structure" onclick="showRTab('structure')" style="display:none;">構文解説へ →</button>
+    </div>
+
+    <!-- 構文画面 -->
+    <div class="rscreen" id="rs-structure">
+      <div id="structure-content"></div>
+      <button class="btn-next" id="to-rvocab" onclick="showRTab('rvocab')" style="display:none;">単語へ →</button>
+    </div>
+
+    <!-- 単語画面 -->
+    <div class="rscreen" id="rs-rvocab">
+      <div id="rvocab-content"></div>
+
+      <!-- コーチから会話へ誘う -->
+      <div id="coach-talk-invite" style="display:none;margin-top:16px;background:linear-gradient(135deg,rgba(102,126,234,0.15),rgba(118,75,162,0.15));border:1px solid rgba(102,126,234,0.3);border-radius:18px;padding:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(102,126,234,0.5);">
+            <img id="invite-coach-img" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;"/>
+          </div>
+          <div style="flex:1;">
+            <div id="invite-coach-name" style="font-size:13px;font-weight:800;color:white;margin-bottom:2px;"></div>
+            <div id="invite-coach-msg" style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;"></div>
+          </div>
+        </div>
+        <button onclick="goToChatWithTopic()" style="width:100%;padding:13px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:14px;color:white;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;">
+          🗣️ このトピックで話してみる！
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
+
 <!-- VIEW: フラッシュカード -->
 <div class="view" id="view-flash">
   <!-- モード：学習 -->
@@ -497,6 +562,8 @@ function selectCoach(name){
   var c=coaches[name];
   var img=document.getElementById('coach-avatar-img');
   if(img)img.src=c.avatar;
+  var headerImg=document.getElementById('header-coach-img');
+  if(headerImg)headerImg.src=c.avatar;
   var nameEl=document.getElementById('coach-fixed-name');
   if(nameEl)nameEl.textContent=c.name;
   var bubble=document.getElementById('avatar-bubble');
@@ -515,7 +582,7 @@ function updateApiStatus(){var btn=document.getElementById('api-status-btn');if(
 function showApiModal(){document.getElementById('api-modal').classList.add('show');}
 function closeApiModal(){document.getElementById('api-modal').classList.remove('show');}
 function saveApiKey(){var val=document.getElementById('api-key-input').value.trim();if(val.length<10){alert('APIキーを入力してください');return;}apiKey=val;localStorage.setItem('groq_api_key',apiKey);updateApiStatus();closeApiModal();}
-function showView(name){document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('view-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');if(name==='vocab')renderVocab();if(name==='analysis')renderAnalysis();if(name==='flash'){if(document.getElementById('fc-list-mode')&&document.getElementById('fc-list-mode').style.display!=='none'){renderFcList();}else{fcStartSession();}}}
+function showView(name){document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('view-'+name).classList.add('active');document.getElementById('nav-'+name).classList.add('active');if(name==='vocab')renderVocab();if(name==='analysis')renderAnalysis();if(name==='reading'){updateReadingCoachUI();}if(name==='flash'){if(document.getElementById('fc-list-mode')&&document.getElementById('fc-list-mode').style.display!=='none'){renderFcList();}else{fcStartSession();}}}
 function requestMicPermission(){
   if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
     navigator.mediaDevices.getUserMedia({audio:true})
@@ -569,13 +636,15 @@ async function sendMessage(){
   document.getElementById('prompts').style.display='none';
   updateStreak(true);
   addXP(10, '会話');
+  // 発話カウント更新
+  incrementSpeakCount();
   if(!currentSession)currentSession={id:Date.now(),date:new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}),turns:[]};
   var turn=document.createElement('div');turn.className='turn';
   turn.innerHTML='<div class="user-bubble"><div class="label">YOU</div><div class="text">'+esc(text)+'</div></div><div class="thinking"><div class="dots"><span></span><span></span><span></span></div>考えてるよ...</div>';
   document.getElementById('messages').appendChild(turn);scrollBottom();
   isLoading=true;document.getElementById('send-btn').disabled=true;avatarState('talking');
   conversationHistory.push({role:'user',parts:[{text:text}]});
-  if(!coaches[currentCoach]){console.error('Coach not found:',currentCoach);return;}var sys=coaches[currentCoach].sys_extra+' You are an English conversation partner for Japanese learners. The user speaks only English.\n\nALWAYS respond with a JSON object. NEVER add any text outside the JSON. Every field is required.\n\nJSON format:\n{"check":"Correct the user English naturally and encouragingly. Always fill.","natural":"1-2 more native-sounding English alternatives. Always fill.","natural_jp":"【必須・必ず日本語で】上記の自然な表現の日本語訳。絶対に空にしない。","reply":"Your friendly English reply. 1-3 sentences. Always fill.","japanese":"【必須・必ず日本語で】返答の日本語訳。絶対に空にしない。例：今日は何を食べましたか？","level":"A1 or A2 or B1 or B2 or C1 or C2","mistake":"文法ミスを日本語15文字以内で。なければ空文字。"}\n\nCRITICAL: natural_jp and japanese MUST be written in Japanese characters (hiragana/katakana/kanji). If you write English there it is WRONG.';
+  if(!coaches[currentCoach]){console.error('Coach not found:',currentCoach);return;}var sys=coaches[currentCoach].sys_extra+' You are an English conversation partner for Japanese learners. The user speaks only English.\n\nALWAYS respond with a JSON object. NEVER add any text outside the JSON. Every field is required.\n\nJSON format:\n{"check":"Correct the user English naturally and encouragingly. Always fill.","natural":"1-2 more native-sounding English alternatives. Always fill.","natural_jp":"【必須・必ず日本語で】上記の自然な表現の日本語訳。絶対に空にしない。","reply":"Your friendly English reply. 1-3 sentences. Always fill.","japanese":"【必須・必ず日本語で】返答の日本語訳。絶対に空にしない。例：今日は何を食べましたか？","level":"A1 or A2 or B1 or B2 or C1 or C2","mistake_category":"ミスの種類(動詞活用/時制/冠詞/前置詞/語順/三単現/助動詞/名詞複数形/その他)","mistake_detail":"具体的なミス内容(例:goをwentにすべき/三単現のsが抜けている)","mistake_example":"ユーザーの間違った文そのまま","mistake_correction":"正しい文"}\n\nCRITICAL: natural_jp and japanese MUST be written in Japanese characters (hiragana/katakana/kanji). If you write English there it is WRONG.';
   try{
     var raw='';
     var jsonMatch,p;
@@ -624,7 +693,19 @@ async function sendMessage(){
     }catch(e){p={check:text,natural:'',natural_jp:'',reply:'Sorry, could you say that again?',japanese:'もう一度言ってもらえますか？',level:'',mistake:''};}
     conversationHistory.push({role:'model',parts:[{text:p.reply||raw}]});
     if(p.level){localStorage.setItem('user_level',p.level);var _lt=document.getElementById('level-text');if(_lt)_lt.textContent=levelLabel(p.level);var _lb=document.getElementById('level-badge');if(_lb)_lb.style.display='block';}
-    if(p.mistake&&p.mistake.trim()){var m=JSON.parse(localStorage.getItem('mistake_log')||'[]');m.push(p.mistake.trim());if(m.length>100)m=m.slice(-100);localStorage.setItem('mistake_log',JSON.stringify(m));}
+    if(p.mistake_category&&p.mistake_detail){
+      var m=JSON.parse(localStorage.getItem('mistake_log')||'[]');
+      m.push({
+        category:p.mistake_category||'その他',
+        detail:p.mistake_detail||'',
+        example:p.mistake_example||text,
+        correction:p.mistake_correction||'',
+        date:new Date().toLocaleDateString('ja-JP'),
+        coach:currentCoach
+      });
+      if(m.length>200)m=m.slice(-200);
+      localStorage.setItem('mistake_log',JSON.stringify(m));
+    }
     if(currentSession){currentSession.turns.push({you:text,reply:p.reply||''});var idx=chatSessions.findIndex(function(s){return s.id===currentSession.id;});if(idx>=0)chatSessions[idx]=currentSession;else chatSessions.unshift(currentSession);if(chatSessions.length>30)chatSessions=chatSessions.slice(0,30);localStorage.setItem('chat_sessions',JSON.stringify(chatSessions));}
     var th=turn.querySelector('.thinking');if(th)th.remove();
     var pj=JSON.stringify(p.natural||'').replace(/"/g,'&quot;');
@@ -709,7 +790,324 @@ function initNotification(){
   }
 }
 
-function renderAnalysis(){var el=document.getElementById('analysis-content');var mistakes=JSON.parse(localStorage.getItem('mistake_log')||'[]');var savedLevel=localStorage.getItem('user_level');var s=JSON.parse(localStorage.getItem('streak')||'{"count":0,"bestCount":0}');var freq={};mistakes.forEach(function(m){freq[m]=(freq[m]||0)+1;});var sorted=Object.entries(freq).sort(function(a,b){return b[1]-a[1];});var html='<div style="display:flex;gap:12px;margin-bottom:12px"><div class="stat-card" style="flex:1;text-align:center"><div class="stat-label">現在の連続</div><div class="stat-value" style="color:var(--orange)">'+s.count+'<span style="font-size:14px;font-weight:400">日</span></div><div style="font-size:20px">🔥</div></div><div class="stat-card" style="flex:1;text-align:center"><div class="stat-label">最高記録</div><div class="stat-value" style="color:var(--blue)">'+s.bestCount+'<span style="font-size:14px;font-weight:400">日</span></div><div style="font-size:20px">🏆</div></div></div>';if(savedLevel)html+='<div class="stat-card"><div class="stat-label">現在のレベル</div><div style="font-size:22px;font-weight:800;color:var(--purple)">'+levelLabel(savedLevel)+'</div></div>';if(sorted.length){html+='<div class="stat-card"><div class="stat-label">よくあるミス TOP5</div>';sorted.slice(0,5).forEach(function(item,i){html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:24px;height:24px;border-radius:50%;background:var(--blue);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;margin-bottom:4px">'+esc(item[0])+'</div><div style="height:4px;background:var(--border);border-radius:2px"><div style="height:4px;background:var(--blue);border-radius:2px;width:'+Math.round(item[1]/sorted[0][1]*100)+'%"></div></div></div><div style="font-size:12px;color:var(--muted);font-weight:600">'+item[1]+'回</div></div>';});html+='</div>';}else{html+='<div class="stat-card" style="text-align:center;color:var(--muted)">会話を続けると分析データが蓄積されます</div>';}html+='<button onclick="if(confirm("分析データを削除しますか？")){localStorage.removeItem("mistake_log");localStorage.removeItem("user_level");localStorage.removeItem("streak");renderAnalysis();}" style="width:100%;padding:12px;background:none;border:none;color:var(--red);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px">🗑 データをリセット</button>';el.innerHTML=html;}
+function incrementSpeakCount(){
+  var now=new Date();
+  var todayKey=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();
+  var monthKey=now.getFullYear()+'-'+(now.getMonth()+1);
+  var counts=JSON.parse(localStorage.getItem('speak_counts')||'{"total":0,"daily":{},"monthly":{}}');
+  counts.total=(counts.total||0)+1;
+  counts.daily[todayKey]=(counts.daily[todayKey]||0)+1;
+  counts.monthly[monthKey]=(counts.monthly[monthKey]||0)+1;
+  // dailyは30日分だけ保持
+  var dailyKeys=Object.keys(counts.daily).sort();
+  if(dailyKeys.length>30){
+    var toDelete=dailyKeys.slice(0,dailyKeys.length-30);
+    toDelete.forEach(function(k){delete counts.daily[k];});
+  }
+  localStorage.setItem('speak_counts',JSON.stringify(counts));
+}
+
+function getSpeakCounts(){
+  var now=new Date();
+  var todayKey=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();
+  var monthKey=now.getFullYear()+'-'+(now.getMonth()+1);
+  var counts=JSON.parse(localStorage.getItem('speak_counts')||'{"total":0,"daily":{},"monthly":{}}');
+  return{
+    today:counts.daily[todayKey]||0,
+    month:counts.monthly[monthKey]||0,
+    total:counts.total||0
+  };
+}
+
+function resetAnalysis(){
+  if(!confirm("分析データをリセットしますか？"))return;
+  localStorage.removeItem('mistake_log');
+  localStorage.removeItem('user_level');
+  localStorage.removeItem('streak');
+  localStorage.removeItem('weekly_menu');localStorage.removeItem('speak_counts');
+  renderAnalysis();
+}
+
+async function generateWeeklyMenu(){
+  if(!apiKey)return;
+  var btn=document.getElementById('menu-gen-btn');
+  var status=document.getElementById('menu-gen-status');
+  if(btn){btn.disabled=true;btn.textContent='⏳ 分析中...';}
+  if(status)status.textContent='コーチがデータを分析しています...';
+
+  var mistakes=JSON.parse(localStorage.getItem('mistake_log')||'[]');
+  var fc=JSON.parse(localStorage.getItem('flash_deck')||'[]');
+  var xp=JSON.parse(localStorage.getItem('xp_data')||'{"total":0,"weekly":{}}');
+
+  // ミスの集計
+  var catFreq={};
+  var examples=[];
+  mistakes.forEach(function(m){
+    if(typeof m==='object'&&m.category){
+      catFreq[m.category]=(catFreq[m.category]||0)+1;
+      if(examples.length<5)examples.push(m);
+    }
+  });
+  var topMistakes=Object.entries(catFreq).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+
+  // 未習熟単語
+  var weakWords=fc.filter(function(c){return !c.reps||c.reps<2;}).slice(0,10).map(function(c){return c.word||c.answer||'';});
+
+  var c=coaches[currentCoach];
+    var sysMsg='You are a personal English trainer. Analyze learner weakness data and create a weekly training menu in Japanese. Respond ONLY with JSON.';
+  var dataMsg='Top mistakes:'+JSON.stringify(topMistakes)+' Examples:'+JSON.stringify(examples.slice(-3))+' Weak vocab:'+JSON.stringify(weakWords);
+  var fmtMsg='{"menu":[{"day":"曜日","focus":"テーマ","drill":"練習内容","target":"時間","tip":"コツ"}],"coach_message":"メッセージ","weekly_goal":"目標"}';
+  var prompt=c.sys_extra+' '+sysMsg+'\n\nData: '+dataMsg+'\n\nFormat: '+fmtMsg;
+
+  try{
+    var groqModel=currentModel.replace('groq:','');
+    var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body:JSON.stringify({
+        model:groqModel,
+        messages:[{role:'user',content:prompt}],
+        max_tokens:1000,temperature:0.4,
+        response_format:{type:'json_object'}
+      })
+    });
+    var data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    var raw=data.choices&&data.choices[0]?data.choices[0].message.content:'{}';
+    var p=JSON.parse(raw);
+
+    var menuHtml='';
+    // コーチメッセージ
+    if(p.coach_message){
+      menuHtml+='<div style="background:linear-gradient(135deg,rgba(102,126,234,0.1),rgba(118,75,162,0.1));border:1px solid rgba(102,126,234,0.2);border-radius:12px;padding:12px;margin-bottom:12px;">';
+      menuHtml+='<div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;">💬 '+esc(c.name)+'より</div>';
+      menuHtml+='<div style="font-size:13px;line-height:1.6;">'+esc(p.coach_message)+'</div>';
+      menuHtml+='</div>';
+    }
+    // 週間目標
+    if(p.weekly_goal){
+      menuHtml+='<div style="background:rgba(52,199,89,0.08);border-radius:10px;padding:10px;margin-bottom:12px;">';
+      menuHtml+='<div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;">🎯 今週の目標</div>';
+      menuHtml+='<div style="font-size:13px;font-weight:600;">'+esc(p.weekly_goal)+'</div>';
+      menuHtml+='</div>';
+    }
+    // メニュー
+    if(p.menu&&p.menu.length){
+      p.menu.forEach(function(item){
+        menuHtml+='<div style="border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;">';
+        menuHtml+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+        menuHtml+='<div style="background:var(--blue);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">'+esc(item.day)+'</div>';
+        menuHtml+='<div style="font-size:13px;font-weight:800;">'+esc(item.focus)+'</div>';
+        menuHtml+='<div style="margin-left:auto;font-size:11px;color:var(--muted);">⏱ '+esc(item.target)+'</div>';
+        menuHtml+='</div>';
+        menuHtml+='<div style="font-size:13px;color:var(--text);margin-bottom:4px;">📋 '+esc(item.drill)+'</div>';
+        menuHtml+='<div style="font-size:11px;color:var(--muted);">💡 '+esc(item.tip)+'</div>';
+        menuHtml+='</div>';
+      });
+    }
+    menuHtml+='<div style="font-size:11px;color:var(--muted);text-align:right;">'+new Date().toLocaleDateString('ja-JP')+'生成</div>';
+
+    localStorage.setItem('weekly_menu', menuHtml);
+    var mc=document.getElementById('weekly-menu-content');
+    if(mc)mc.innerHTML=menuHtml;
+    if(status)status.textContent='メニューを生成しました！';
+
+  }catch(err){
+    if(status)status.textContent='エラー: '+err.message;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='🤖 コーチにメニューを組んでもらう';}
+  }
+}
+
+function renderAnalysis(){
+  var el=document.getElementById('analysis-content');
+  if(!el)return;
+  var mistakes=JSON.parse(localStorage.getItem('mistake_log')||'[]');
+  var s=JSON.parse(localStorage.getItem('streak')||'{"count":0,"bestCount":0}');
+  var xp=JSON.parse(localStorage.getItem('xp_data')||'{"total":0,"weekly":{}}');
+  var fc=JSON.parse(localStorage.getItem('flash_deck')||'[]');
+
+  // カテゴリ別集計（新形式）
+  var catFreq={};
+  var detailLog=[];
+  mistakes.forEach(function(m){
+    if(typeof m==='object'&&m.category){
+      catFreq[m.category]=(catFreq[m.category]||0)+1;
+      detailLog.push(m);
+    }else if(typeof m==='string'){
+      // 旧形式対応
+      catFreq[m]=(catFreq[m]||0)+1;
+    }
+  });
+  var sortedCat=Object.entries(catFreq).sort(function(a,b){return b[1]-a[1];});
+
+  // フラッシュカードの習熟度
+  var fcTotal=fc.length;
+  var fcMastered=fc.filter(function(c){return c.reps&&c.reps>=3;}).length;
+  var fcWeak=fc.filter(function(c){return c.reps===0||!c.reps;}).length;
+
+  var h='';
+
+  // ── ストリーク＋XP ──
+  // 発話カウント取得
+  var sc=getSpeakCounts();
+  // 発話カウント表示
+  h+='<div style="background:linear-gradient(135deg,rgba(102,126,234,0.12),rgba(118,75,162,0.12));border:1px solid rgba(102,126,234,0.2);border-radius:18px;padding:16px;margin-bottom:14px;">';
+  h+='<div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:12px;">🗣️ 発話トレーニング記録</div>';
+  h+='<div style="display:flex;gap:8px;">';
+  h+='<div style="flex:1;background:rgba(255,255,255,0.5);border-radius:12px;padding:10px 6px;text-align:center;">';
+  h+='<div style="font-size:22px;font-weight:900;color:var(--blue);">'+sc.today.toLocaleString()+'</div>';
+  h+='<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:2px;">本日の発話</div>';
+  h+='</div>';
+  h+='<div style="flex:1;background:rgba(255,255,255,0.5);border-radius:12px;padding:10px 6px;text-align:center;">';
+  h+='<div style="font-size:22px;font-weight:900;color:var(--purple);">'+sc.month.toLocaleString()+'</div>';
+  h+='<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:2px;">今月の発話</div>';
+  h+='</div>';
+  h+='<div style="flex:1;background:rgba(255,255,255,0.5);border-radius:12px;padding:10px 6px;text-align:center;">';
+  h+='<div style="font-size:22px;font-weight:900;color:var(--green);">'+sc.total.toLocaleString()+'</div>';
+  h+='<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:2px;">累計発話</div>';
+  h+='</div>';
+  h+='</div>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:10px;margin-bottom:14px;">';
+  h+='<div class="stat-card" style="flex:1;text-align:center;"><div class="stat-label">連続記録</div><div class="stat-value" style="color:var(--orange)">'+s.count+'<span style="font-size:14px;font-weight:400">日</span></div><div style="font-size:18px">🔥</div></div>';
+  h+='<div class="stat-card" style="flex:1;text-align:center;"><div class="stat-label">総XP</div><div class="stat-value" style="color:var(--blue)">'+(xp.total||0)+'<span style="font-size:12px;font-weight:400">XP</span></div><div style="font-size:18px">⚡</div></div>';
+  h+='<div class="stat-card" style="flex:1;text-align:center;"><div class="stat-label">単語習得</div><div class="stat-value" style="color:var(--green)">'+fcMastered+'<span style="font-size:12px;font-weight:400">/'+fcTotal+'</span></div><div style="font-size:18px">📚</div></div>';
+  h+='</div>';
+
+  // ── よくあるミス（詳細） ──
+  h+='<div class="stat-card" style="margin-bottom:14px;">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">';
+  h+='<div style="font-size:14px;font-weight:800;">⚠️ よくあるミス</div>';
+  h+='<div style="font-size:11px;color:var(--muted);">'+mistakes.length+'回記録済み</div>';
+  h+='</div>';
+  if(sortedCat.length===0){
+    h+='<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0;">まだデータがありません<br>会話を続けると分析されます</div>';
+  }else{
+    var top5=sortedCat.slice(0,5);
+    var maxCount=top5[0][1];
+    top5.forEach(function(entry,i){
+      var cat=entry[0];var cnt=entry[1];
+      var pct=Math.round(cnt/maxCount*100);
+      // このカテゴリの最新ミス詳細を取得
+      var recent=detailLog.filter(function(m){return m.category===cat;}).slice(-1)[0];
+      h+='<div style="margin-bottom:12px;">';
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">';
+      h+='<div style="width:20px;height:20px;border-radius:50%;background:var(--blue);color:white;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;">'+(i+1)+'</div>';
+      h+='<div style="flex:1;">';
+      h+='<div style="font-size:13px;font-weight:700;">'+esc(cat)+'</div>';
+      if(recent&&recent.detail){
+        h+='<div style="font-size:11px;color:var(--muted);margin-top:1px;">'+esc(recent.detail)+'</div>';
+      }
+      h+='</div>';
+      h+='<div style="font-size:12px;font-weight:700;color:var(--muted);">'+cnt+'回</div>';
+      h+='</div>';
+      // バー
+      h+='<div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:28px;">';
+      h+='<div style="height:100%;width:'+pct+'%;background:var(--blue);border-radius:2px;transition:width 0.5s;"></div>';
+      h+='</div>';
+      // 最新の間違い例
+      if(recent&&recent.example&&recent.correction){
+        h+='<div style="margin-left:28px;margin-top:6px;background:rgba(255,59,48,0.05);border-radius:8px;padding:6px 10px;">';
+        h+='<div style="font-size:11px;color:var(--red);margin-bottom:2px;">❌ '+esc(recent.example)+'</div>';
+        h+='<div style="font-size:11px;color:var(--green);">✅ '+esc(recent.correction)+'</div>';
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+  }
+  h+='</div>';
+
+  // ── 今週のトレーニングメニュー ──
+  h+='<div class="stat-card" style="margin-bottom:14px;">';
+  h+='<div style="font-size:14px;font-weight:800;margin-bottom:8px;">💪 今週のトレーニングメニュー</div>';
+  h+='<div id="weekly-menu-content">';
+  var savedMenu=localStorage.getItem('weekly_menu');
+  if(savedMenu){
+    h+=savedMenu;
+  }else{
+    h+='<div style="text-align:center;color:var(--muted);font-size:13px;padding:12px 0;">メニューがまだありません</div>';
+  }
+  h+='</div>';
+  h+='<button onclick="generateWeeklyMenu()" id="menu-gen-btn" style="width:100%;margin-top:12px;padding:12px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:14px;color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">🤖 コーチにメニューを組んでもらう</button>';
+  h+='<div id="menu-gen-status" style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px;"></div>';
+  h+='</div>';
+
+  // ── フラッシュカード習熟度 ──
+  h+='<div class="stat-card" style="margin-bottom:14px;">';
+  h+='<div style="font-size:14px;font-weight:800;margin-bottom:10px;">🃏 フラッシュカード習熟度</div>';
+  h+='<div style="display:flex;gap:8px;">';
+  h+='<div style="flex:1;background:rgba(52,199,89,0.08);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--green);">'+fcMastered+'</div><div style="font-size:11px;color:var(--muted);">習得済</div></div>';
+  h+='<div style="flex:1;background:rgba(0,122,255,0.08);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--blue);">'+(fcTotal-fcMastered-fcWeak)+'</div><div style="font-size:11px;color:var(--muted);">定着中</div></div>';
+  h+='<div style="flex:1;background:rgba(255,149,0,0.08);border-radius:12px;padding:10px;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--orange);">'+fcWeak+'</div><div style="font-size:11px;color:var(--muted);">未学習</div></div>';
+  h+='</div>';
+  h+='</div>';
+
+  // ── リセット ──
+  h+='<button onclick="resetAnalysis()" style="width:100%;padding:12px;background:none;border:1px solid var(--border);border-radius:14px;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;">🗑 データをリセット</button>';
+
+  el.innerHTML=h;
+}
+async function coachGenerateText(){
+  var c=coaches[currentCoach];
+  var genres=['business_email','news','report','negotiation','hr','announcement'];
+  var genre=genres[Math.floor(Math.random()*genres.length)];
+  // コーチに応じてジャンルをカスタマイズ
+  if(currentCoach==='gunso') genre=['report','negotiation','announcement'][Math.floor(Math.random()*3)];
+  if(currentCoach==='bell') genre=['business_email','hr','negotiation'][Math.floor(Math.random()*3)];
+  if(currentCoach==='berry') genre=['news','announcement','business_email'][Math.floor(Math.random()*3)];
+  generateText(genre);
+}
+
+function goToChatWithTopic(){
+  var topic=window._lastReadingTopic||'今読んだ英文について';
+  // 会話タブに移動してコーチに話しかける
+  showView('chat');
+  // chat-screenに切り替え（コーチ選択が終わっていれば）
+  var cs=document.getElementById('coach-select-screen');
+  var chatS=document.getElementById('chat-screen');
+  if(cs&&chatS){
+    cs.style.display='none';
+    chatS.style.display='flex';
+  }
+  // 入力欄にトピックを入れる
+  setTimeout(function(){
+    var inp=document.getElementById('user-input');
+    if(inp){
+      inp.value='I just read about '+topic+'. ';
+      autoResize(inp);
+      inp.focus();
+    }
+  },300);
+}
+
+function updateReadingCoachUI(){
+  var c=coaches[currentCoach];
+  if(!c)return;
+  var img=document.getElementById('reading-coach-img');
+  if(img)img.src=c.circle;
+  var name=document.getElementById('reading-coach-name');
+  if(name)name.textContent=c.name;
+  var invImg=document.getElementById('invite-coach-img');
+  if(invImg)invImg.src=c.circle;
+  var invName=document.getElementById('invite-coach-name');
+  if(invName)invName.textContent=c.name;
+}
+
+function showCoachInvite(topic){
+  window._lastReadingTopic=topic;
+  var c=coaches[currentCoach];
+  var msgs={
+    berry:'読み終わった！\nじゃあこのトピックで話してみよう😄',
+    bell:'よく読めたね！\nこのテーマで英語で話してみよう😊',
+    gunso:'読んだな！\n今すぐ話せ。考えるな💪'
+  };
+  var el=document.getElementById('coach-talk-invite');
+  var msgEl=document.getElementById('invite-coach-msg');
+  if(el)el.style.display='block';
+  if(msgEl)msgEl.textContent=msgs[currentCoach]||msgs.berry;
+}
+
 async function generateText(genre){
   if(!apiKey){showApiModal();return;}
   var statusEl=document.getElementById('generate-status');
@@ -905,7 +1303,7 @@ async function analyze(){
         vocabHtml+='<div style="padding:10px 0;border-bottom:0.5px solid var(--border);">';
         // 単語と意味
         vocabHtml+='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">';
-        vocabHtml+='<span style="font-size:16px;font-weight:700;color:var(--blue);">'+esc(word)+'</span>';
+        vocabHtml+='<span style="font-size:16px;font-weight:700;color:#818cf8;">'+esc(word)+'</span>';
         vocabHtml+='<span style="font-size:14px;color:var(--muted);">'+esc(meaning)+'</span>';
         vocabHtml+='</div>';
         // 例文
@@ -919,6 +1317,9 @@ async function analyze(){
       });
       vocabHtml+='</div>';
       vc.innerHTML=vocabHtml;
+      // コーチから会話へ誘う
+      var topicText=document.getElementById('reading-input').value.slice(0,50)||'英文トレーニング';
+      showCoachInvite(topicText);
       // フラッシュカードに追加
       p.vocab.forEach(function(v){
         if(!flashDeck.some(function(d){return d.word.toLowerCase()===v.word.toLowerCase();})){
