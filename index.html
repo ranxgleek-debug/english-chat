@@ -1227,10 +1227,13 @@ async function analyze(){
         body:JSON.stringify({
           model:groqModelR,
           messages:[{role:'user',content:prompt}],
-          max_tokens:2000,temperature:0.3,
-          response_format:{type:'json_object'}
+          max_tokens:2000,temperature:0.3
         })
       });
+      if(!resR.ok){
+        var errData=await resR.json().catch(function(){return {};});
+        throw new Error((errData.error&&errData.error.message)||('HTTP '+resR.status));
+      }
       var dataR=await resR.json();
       if(dataR.error)throw new Error(dataR.error.message);
       rawR=dataR.choices&&dataR.choices[0]?dataR.choices[0].message.content:'{}';
