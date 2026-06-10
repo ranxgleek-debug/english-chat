@@ -39,7 +39,7 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 .btn-primary{width:100%;padding:15px;background:var(--blue);border:none;border-radius:14px;color:white;font-size:18px;font-weight:700;font-family:inherit;cursor:pointer;}
 .btn-primary:disabled{opacity:0.4;cursor:default;}
 .btn-next{width:100%;padding:14px;background:var(--blue);border:none;border-radius:14px;color:white;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;display:none;}
-.empty-state{text-align:center;padding:60px 20px;color:var(--muted);line-height:2;}
+.empty-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.5);line-height:2;}
 .empty-state .icon{font-size:48px;margin-bottom:12px;}
 .loading{text-align:center;padding:48px 20px;color:var(--muted);}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
@@ -163,12 +163,12 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 .fc-btn.again{background:rgba(255,59,48,0.1);color:var(--red);}
 .fc-btn.knew{background:rgba(52,199,89,0.12);color:var(--green);}
 /* VOCAB NOTE */
-.vocab-note-item{background:white;border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,0.07);}
-.vocab-note-phrase{font-size:18px;font-weight:700;color:var(--blue);margin-bottom:3px;}
-.vocab-note-context{font-size:15px;color:var(--muted);line-height:1.5;}
+.vocab-note-item{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.vocab-note-phrase{font-size:18px;font-weight:700;color:#a78bfa;margin-bottom:3px;}
+.vocab-note-context{font-size:15px;color:rgba(255,255,255,0.6);line-height:1.5;}
 .del-btn{background:transparent;border:none;color:#ddd;font-size:20px;cursor:pointer;flex-shrink:0;}
 /* ANALYSIS */
-.stat-card{background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.07);}
+.stat-card{background:rgba(255,255,255,0.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:16px;margin-bottom:12px;color:white;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
 .stat-label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;}
 .stat-value{font-size:32px;font-weight:800;}
 
@@ -188,6 +188,9 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 .hdr-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white;}
 .hdr-title{font-size:15px;font-weight:800;}
 .hdr-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+
+@keyframes repFly{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-80px) scale(1.5);opacity:0;}}
+.rep-fly{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:32px;font-weight:900;color:var(--green);z-index:100;pointer-events:none;animation:repFly 0.8s ease-out forwards;}
 </style>
 </head>
 <body>
@@ -215,7 +218,7 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
       <div style="position:absolute;left:0;top:0;bottom:0;width:60%;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;z-index:2;">
         <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:6px;">💪 今日のロトレ</div>
         <div style="font-size:19px;font-weight:900;color:white;line-height:1.25;margin-bottom:10px;">めちゃくちゃでも、<br>まず<span style="color:#FFD60A;">話そう。</span></div>
-        <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:white;width:fit-content;">口は、鍛えられる。</div>
+        <div style="display:inline-block;background:rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:white;width:fit-content;">英語は、鍛えられる。</div>
       </div>
       <div style="position:absolute;right:-10px;bottom:0;width:50%;height:100%;z-index:1;overflow:hidden;">
         <img id="hero-coach-img" style="position:absolute;top:0;right:0;width:100%;height:100%;object-fit:cover;object-position:center top;" alt="coach"/>
@@ -333,8 +336,6 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
     <!-- タブ -->
     <div style="display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:12px;padding:3px;">
       <button class="rtab active" id="rtab-input" onclick="showRTab('input')" style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.12);color:white;">入力</button>
-      <button class="rtab" id="rtab-summary" onclick="showRTab('summary')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">要約</button>
-      <button class="rtab" id="rtab-structure" onclick="showRTab('structure')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">構文</button>
       <button class="rtab" id="rtab-rvocab" onclick="showRTab('rvocab')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">単語</button>
     </div>
   </div>
@@ -381,18 +382,6 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
       </button>
     </div>
 
-    <!-- 要約画面 -->
-    <div class="rscreen" id="rs-summary">
-      <div id="summary-content"></div>
-      <button class="btn-next" id="to-structure" onclick="showRTab('structure')" style="display:none;">構文解説へ →</button>
-    </div>
-
-    <!-- 構文画面 -->
-    <div class="rscreen" id="rs-structure">
-      <div id="structure-content"></div>
-      <button class="btn-next" id="to-rvocab" onclick="showRTab('rvocab')" style="display:none;">単語へ →</button>
-    </div>
-
     <!-- 単語画面 -->
     <div class="rscreen" id="rs-rvocab">
       <div id="rvocab-content"></div>
@@ -418,29 +407,32 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 </div>
 
 <!-- VIEW: フラッシュカード -->
-<div class="view" id="view-flash" style="overflow:hidden;">
+<div class="view" id="view-flash" style="overflow:hidden;background:linear-gradient(160deg,#1a1a2e 0%,#16213e 55%,#0f3460 100%);position:relative;">
+  <!-- ジム背景パターン -->
+  <div style="position:absolute;top:8%;right:6%;font-size:90px;opacity:0.04;pointer-events:none;z-index:0;">🏋️</div>
+  <div style="position:absolute;bottom:12%;left:8%;font-size:70px;opacity:0.04;pointer-events:none;z-index:0;">💪</div>
   <!-- モード：学習 -->
-  <div id="fc-study-mode" style="display:flex;flex-direction:column;height:100%;min-height:0;">
-    <div class="hdr" style="flex-shrink:0;">
+  <div id="fc-study-mode" style="display:flex;flex-direction:column;height:100%;min-height:0;position:relative;z-index:1;">
+    <div class="hdr" style="flex-shrink:0;background:rgba(255,255,255,0.06);border-bottom:0.5px solid rgba(255,255,255,0.1);">
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="hdr-icon" style="background:var(--orange);">🃏</div>
         <div>
-          <div class="hdr-title">フラッシュカード</div>
-          <div class="hdr-sub" id="fc-deck-info">読解で分析した単語が蓄積されます</div>
+          <div class="hdr-title" style="color:white;">💪 単語ジム</div>
+          <div class="hdr-sub" id="fc-deck-info" style="color:rgba(255,255,255,0.5);">読解で分析した単語が蓄積されます</div>
         </div>
       </div>
-      <button onclick="fcEndSession()" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;">終了</button>
+      <button onclick="fcEndSession()" style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;padding:5px 12px;font-size:12px;font-weight:700;color:white;cursor:pointer;font-family:inherit;">終了</button>
     </div>
     <div id="flash-content" style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;"></div>
   </div>
   <!-- モード：一覧 -->
-  <div id="fc-list-mode" style="display:none;flex-direction:column;height:100%;">
-    <div class="hdr" style="flex-shrink:0;">
+  <div id="fc-list-mode" style="display:none;flex-direction:column;height:100%;position:relative;z-index:1;">
+    <div class="hdr" style="flex-shrink:0;background:rgba(255,255,255,0.06);border-bottom:0.5px solid rgba(255,255,255,0.1);">
       <div style="display:flex;align-items:center;gap:8px;">
         <div class="hdr-icon" style="background:var(--orange);">📋</div>
         <div>
-          <div class="hdr-title">単語一覧</div>
-          <div class="hdr-sub" id="fc-list-info"></div>
+          <div class="hdr-title" style="color:white;">単語一覧</div>
+          <div class="hdr-sub" id="fc-list-info" style="color:rgba(255,255,255,0.5);"></div>
         </div>
       </div>
       <button onclick="fcStartSession()" style="background:var(--blue);border:none;border-radius:10px;padding:5px 14px;font-size:12px;font-weight:700;color:white;cursor:pointer;font-family:inherit;">学習開始</button>
@@ -450,18 +442,18 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
 </div>
 
 <!-- VIEW: 語彙ノート --><!-- VIEW: 語彙ノート -->
-<div class="view" id="view-vocab">
+<div class="view" id="view-vocab" style="background:linear-gradient(160deg,#1a1a2e 0%,#16213e 55%,#0f3460 100%);color:white;">
   <div class="scroll-area" style="padding-top:16px;">
     <div style="font-size:22px;font-weight:700;margin-bottom:4px;">📒 語彙ノート</div>
-    <div style="font-size:14px;color:var(--muted);margin-bottom:20px;">会話中の💾で保存したフレーズ</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:20px;">会話中の💾で保存したフレーズ</div>
     <div id="vocab-list"></div>
   </div>
 </div>
 <!-- VIEW: 分析 -->
-<div class="view" id="view-analysis">
+<div class="view" id="view-analysis" style="background:linear-gradient(160deg,#1a1a2e 0%,#16213e 55%,#0f3460 100%);color:white;">
   <div class="scroll-area" style="padding-top:16px;">
     <div style="font-size:22px;font-weight:700;margin-bottom:4px;">📈 学習分析</div>
-    <div style="font-size:14px;color:var(--muted);margin-bottom:20px;">会話から自動で分析</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:20px;">会話から自動で分析</div>
     <div id="analysis-content"></div>
   </div>
 </div>
@@ -923,6 +915,19 @@ function incrementSpeakCount(){
     toDelete.forEach(function(k){delete counts.daily[k];});
   }
   localStorage.setItem('speak_counts',JSON.stringify(counts));
+  addStudyTime(1);
+}
+
+function addStudyTime(minutes){
+  var now=new Date();
+  var todayKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  var study=JSON.parse(localStorage.getItem('study_time')||'{"daily":{},"total":0}');
+  study.daily[todayKey]=(study.daily[todayKey]||0)+minutes;
+  study.total=(study.total||0)+minutes;
+  // 90日分保持
+  var keys=Object.keys(study.daily).sort();
+  if(keys.length>90){keys.slice(0,keys.length-90).forEach(function(k){delete study.daily[k];});}
+  localStorage.setItem('study_time',JSON.stringify(study));
 }
 
 function getSpeakCounts(){
@@ -942,7 +947,7 @@ function resetAnalysis(){
   localStorage.removeItem('mistake_log');
   localStorage.removeItem('user_level');
   localStorage.removeItem('streak');
-  localStorage.removeItem('weekly_menu');localStorage.removeItem('speak_counts');
+  localStorage.removeItem('weekly_menu');localStorage.removeItem('speak_counts');localStorage.removeItem('study_time');
   renderAnalysis();
 }
 
@@ -1073,15 +1078,15 @@ function renderAnalysis(){
   h+='<div style="background:linear-gradient(135deg,rgba(102,126,234,0.12),rgba(118,75,162,0.12));border:1px solid rgba(102,126,234,0.2);border-radius:18px;padding:16px;margin-bottom:14px;">';
   h+='<div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:12px;">🗣️ 発話トレーニング記録</div>';
   h+='<div style="display:flex;gap:8px;">';
-  h+='<div style="flex:1;background:rgba(255,255,255,0.5);border-radius:12px;padding:10px 6px;text-align:center;">';
+  h+='<div style="flex:1;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:12px;padding:10px 6px;text-align:center;">';
   h+='<div style="font-size:22px;font-weight:900;color:var(--blue);">'+sc.today.toLocaleString()+'</div>';
   h+='<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:2px;">本日の発話</div>';
   h+='</div>';
-  h+='<div style="flex:1;background:rgba(255,255,255,0.5);border-radius:12px;padding:10px 6px;text-align:center;">';
+  h+='<div style="flex:1;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:12px;padding:10px 6px;text-align:center;">';
   h+='<div style="font-size:22px;font-weight:900;color:var(--purple);">'+sc.month.toLocaleString()+'</div>';
   h+='<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:2px;">今月の発話</div>';
   h+='</div>';
-  h+='<div style="flex:1;background:rgba(255,255,255,0.5);border-radius:12px;padding:10px 6px;text-align:center;">';
+  h+='<div style="flex:1;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:12px;padding:10px 6px;text-align:center;">';
   h+='<div style="font-size:22px;font-weight:900;color:var(--green);">'+sc.total.toLocaleString()+'</div>';
   h+='<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:2px;">累計発話</div>';
   h+='</div>';
@@ -1091,6 +1096,56 @@ function renderAnalysis(){
   h+='<div class="stat-card" style="flex:1;text-align:center;"><div class="stat-label">連続記録</div><div class="stat-value" style="color:var(--orange)">'+s.count+'<span style="font-size:14px;font-weight:400">日</span></div><div style="font-size:18px">🔥</div></div>';
   h+='<div class="stat-card" style="flex:1;text-align:center;"><div class="stat-label">総XP</div><div class="stat-value" style="color:var(--blue)">'+(xp.total||0)+'<span style="font-size:12px;font-weight:400">XP</span></div><div style="font-size:18px">⚡</div></div>';
   h+='<div class="stat-card" style="flex:1;text-align:center;"><div class="stat-label">単語習得</div><div class="stat-value" style="color:var(--green)">'+fcMastered+'<span style="font-size:12px;font-weight:400">/'+fcTotal+'</span></div><div style="font-size:18px">📚</div></div>';
+  h+='</div>';
+
+  // ── 総学習時間（累積推移グラフ） ──
+  var study=JSON.parse(localStorage.getItem('study_time')||'{"daily":{},"total":0}');
+  var totalMin=Math.round(study.total||0);
+  var totalH=Math.floor(totalMin/60);
+  var totalM=totalMin%60;
+  // 直近14日の累積推移を計算
+  var days=[];var nowD=new Date();
+  for(var di=13;di>=0;di--){var d=new Date(nowD);d.setDate(d.getDate()-di);days.push(d);}
+  var cumulative=0;
+  // 14日より前の累積を先に足す
+  var allKeys=Object.keys(study.daily).sort();
+  var firstShownKey=days[0].getFullYear()+'-'+String(days[0].getMonth()+1).padStart(2,'0')+'-'+String(days[0].getDate()).padStart(2,'0');
+  allKeys.forEach(function(k){if(k<firstShownKey)cumulative+=study.daily[k];});
+  var points=[];var labels=[];
+  days.forEach(function(d){
+    var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    cumulative+=(study.daily[key]||0);
+    points.push(Math.round(cumulative));
+    labels.push((d.getMonth()+1)+'/'+d.getDate());
+  });
+  var maxV=Math.max.apply(null,points.concat([10]));
+  // SVGで折れ線グラフを描画
+  var gw=300,gh=120,pad=4;
+  var svgPts=points.map(function(v,i){
+    var x=pad+(i/(points.length-1))*(gw-pad*2);
+    var y=gh-pad-(v/maxV)*(gh-pad*2);
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  var areaPts=svgPts+' '+(gw-pad)+','+(gh-pad)+' '+pad+','+(gh-pad);
+
+  h+='<div class="stat-card" style="margin-bottom:14px;">';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">';
+  h+='<div style="font-size:14px;font-weight:800;">⏱ 総学習時間</div>';
+  h+='<div style="font-size:11px;color:var(--muted);">過去14日の推移</div>';
+  h+='</div>';
+  h+='<div style="font-size:30px;font-weight:900;color:var(--blue);line-height:1;margin-bottom:2px;">'+totalH+'<span style="font-size:15px;font-weight:600;">時間</span> '+totalM+'<span style="font-size:15px;font-weight:600;">分</span></div>';
+  h+='<div style="font-size:11px;color:var(--muted);margin-bottom:10px;">累計トレーニング時間</div>';
+  // グラフ
+  h+='<svg viewBox="0 0 '+gw+' '+gh+'" style="width:100%;height:130px;overflow:visible;">';
+  h+='<defs><linearGradient id="studyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,122,255,0.3)"/><stop offset="100%" stop-color="rgba(0,122,255,0)"/></linearGradient></defs>';
+  h+='<polygon points="'+areaPts+'" fill="url(#studyGrad)"/>';
+  h+='<polyline points="'+svgPts+'" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  // 最新ポイントに丸
+  var lastPt=svgPts.split(' ').pop().split(',');
+  h+='<circle cx="'+lastPt[0]+'" cy="'+lastPt[1]+'" r="4" fill="var(--blue)" stroke="white" stroke-width="2"/>';
+  h+='</svg>';
+  // ラベル（始点と終点）
+  h+='<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;"><span>'+labels[0]+'</span><span>'+labels[labels.length-1]+'</span></div>';
   h+='</div>';
 
   // ── よくあるミス（詳細） ──
@@ -1121,7 +1176,7 @@ function renderAnalysis(){
       h+='<div style="font-size:12px;font-weight:700;color:var(--muted);">'+cnt+'回</div>';
       h+='</div>';
       // バー
-      h+='<div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:28px;">';
+      h+='<div style="height:4px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;margin-left:28px;">';
       h+='<div style="height:100%;width:'+pct+'%;background:var(--blue);border-radius:2px;transition:width 0.5s;"></div>';
       h+='</div>';
       // 最新の間違い例
@@ -1162,7 +1217,7 @@ function renderAnalysis(){
   h+='</div>';
 
   // ── リセット ──
-  h+='<button onclick="resetAnalysis()" style="width:100%;padding:12px;background:none;border:1px solid var(--border);border-radius:14px;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;">🗑 データをリセット</button>';
+  h+='<button onclick="resetAnalysis()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,0.2);border-radius:14px;color:rgba(255,255,255,0.6);font-size:13px;cursor:pointer;font-family:inherit;">🗑 データをリセット</button>';
 
   el.innerHTML=h;
 }
@@ -1268,48 +1323,7 @@ async function generateText(genre){
   }
 }
 
-function renderStructure(data){
-  if(!data) return;
-  var el=document.getElementById('structure-content');
-  if(!el) return;
-  var html='';
-
-  if(!data.chunks||!data.chunks.length){
-    el.innerHTML='<div class="empty-state"><div class="icon">📭</div>データがありません</div>';
-    return;
-  }
-
-  data.chunks.forEach(function(chunk,i){
-    html+='<div class="sentence-block">';
-    // 英文（/区切り）
-    html+='<div style="font-size:15px;font-weight:600;color:var(--blue);line-height:1.9;margin-bottom:8px;">';
-    var parts=(chunk.english||'').split('/');
-    html+=parts.map(function(p,pi){
-      return '<span>'+esc(p.trim())+'</span>'+(pi<parts.length-1?'<span style="color:var(--orange);font-weight:700;margin:0 2px;">/</span>':'');
-    }).join('');
-    html+='</div>';
-    // 日本語訳
-    html+='<div style="font-size:14px;color:var(--muted);margin-bottom:10px;line-height:1.7;">'+esc(chunk.japanese||'')+'</div>';
-    // 単語・イディオム解説
-    if(chunk.words&&chunk.words.length){
-      html+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-      chunk.words.forEach(function(w){
-        html+='<div style="background:var(--bg);border-radius:8px;padding:5px 10px;font-size:12px;">';
-        html+='<span style="font-weight:700;color:var(--text)">'+esc(w.word)+'</span>';
-        html+='<span style="color:var(--muted);margin-left:4px;">：'+esc(w.meaning)+'</span>';
-        html+='</div>';
-      });
-      html+='</div>';
-    }
-    html+='</div>';
-  });
-
-  el.innerHTML=html;
-  
-}
-
 function showRTab(name){document.querySelectorAll('.rscreen').forEach(function(s){s.classList.remove('active');});document.querySelectorAll('.rtab').forEach(function(t){t.classList.remove('active');});document.getElementById('rs-'+name).classList.add('active');document.getElementById('rtab-'+name).classList.add('active');}
-function useSample(i){document.getElementById('reading-input').value=samples[i];}
 async function analyze(){
   var text=document.getElementById('reading-input').value.trim();
   if(!text){alert('英文を入力してください');return;}
@@ -1319,21 +1333,11 @@ async function analyze(){
   btn.textContent='⏳ 分析中...';
 
   // タブ有効化・ローディング
-  ['summary','structure','rvocab'].forEach(function(id){
-    document.getElementById('rtab-'+id).disabled=false;
-  });
-  document.getElementById('summary-content').innerHTML='<div class="loading"><div class="spinner"></div>分析中...</div>';
-  document.getElementById('structure-content').innerHTML='';
-  (document.getElementById('quiz-content')||{}).innerHTML='';
-  document.getElementById('rvocab-content').innerHTML='';
-  document.getElementById('to-structure').style.display='none';
-  document.getElementById('to-quiz').style.display='none';
-  (document.getElementById('to-rvocab')||{}).style.display='none';
-  showRTab('summary');
+  document.getElementById('rtab-rvocab').disabled=false;
+  document.getElementById('rvocab-content').innerHTML='<div class="loading"><div class="spinner"></div>分析中...</div>';
+  showRTab('rvocab');
 
-  // gemini-2.0-flash（高速・安定）
-  var model=currentModel;
-  var prompt='Analyze this English text for Japanese learners. Respond ONLY with valid JSON, no markdown.\n\nTEXT: '+text.slice(0,1500)+'\n\nJSON format:\n{\n"summary_en":"English summary 2-3 sentences",\n"summary_jp":"Japanese summary 2-3 sentences",\n"chunks":[{"english":"paragraph chunk with / separating meaningful phrases","japanese":"Japanese translation of the chunk","words":[{"word":"idiom or word","meaning":"Japanese meaning"}]}],\n"vocab":[{"word":"TOEIC850+ word","meaning":"Japanese meaning e.g. temporary：仮設の","example":"Short example sentence using the word","example_jp":"Japanese translation of example"}],\n"flashcards":[{"front_sentence":"sentence with key word replaced by blanks like t_______y","front_jp":"Japanese translation","answer":"the missing word","word":"the key word","pos":"noun/verb/etc","meaning":"Japanese meaning","example":"example sentence using the word","example_jp":"Japanese translation of example"}]\n}\n\nRules:\n- summary_en: 2-3 sentences in English\n- summary_jp: 2-3 sentences in Japanese\n- chunks: split text into 3-5 meaningful paragraphs, use / to separate phrases within each chunk\n- chunks words: pick 2-4 important idioms or expressions per chunk with Japanese meanings\n- vocab: TOEIC 850+ level only, format "word：Japanese meaning", 8-12 words, NO basic words. Add a short example sentence and its Japanese translation for each word\n- flashcards: 6-8 cloze cards using TOEIC 800+ vocabulary with example sentences\n- All Japanese values must be in Japanese';
+  var prompt='You are helping a Japanese learner studying for TOEIC 900+. Extract important vocabulary from the following English text. Respond ONLY with valid JSON, no markdown, no code fences.\n\nTEXT: '+text.slice(0,3000)+'\n\nJSON format:\n{\n"vocab":[{"word":"the word as it appears in a dictionary (base form)","meaning":"Japanese meaning","example":"a natural English example sentence using the word (can be different from the source text)","example_jp":"Japanese translation of the example sentence","pos":"noun/verb/adjective/adverb/etc","front_sentence":"same as example but with the key word replaced by blanks showing first 1-2 letters and last letter, e.g. d_______e for \'discrepancy\', matching word length","front_jp":"same as example_jp","answer":"the word in the exact form used in front_sentence (matches the blanked word)"}]\n}\n\nRules:\n- Extract 8-12 words/phrases at TOEIC 850+ level only. Skip basic/common words.\n- Prioritize words that are central to understanding this specific text (business, finance, news vocabulary etc).\n- Each word must have a complete, natural example sentence (8-20 words) and its Japanese translation.\n- front_sentence must be a cloze (fill-in-the-blank) version of the example sentence with the target word masked, showing only the first 1-2 letters and the last 1 letter, with underscores for the middle letters (total underscores+letters = word length). Example: "accommodate" -> "a__________e".\n- pos should be one of: noun, verb, adjective, adverb\n- All meaning/example_jp/front_jp values must be in natural Japanese.\n- Output ONLY the JSON object, nothing else.';
 
   try{
     var rawR='';
@@ -1368,85 +1372,64 @@ async function analyze(){
     var p;
     try{p=JSON.parse(jsonMatch[0]);}catch(e){throw new Error('JSON解析エラー: '+e.message);}
 
-    // 要約
-    // 要約（英文＋日本語）
-    var sc=document.getElementById('summary-content');
-    var sumHtml='';
-    if(p.summary_en){
-      sumHtml+='<div class="card"><span class="summary-badge">🇺🇸 English Summary</span><div style="font-size:15px;line-height:1.85;color:var(--text)">'+esc(p.summary_en)+'</div></div>';
-    }
-    if(p.summary_jp){
-      sumHtml+='<div class="card"><span class="summary-badge" style="background:rgba(255,149,0,0.1);color:var(--orange);">🇯🇵 日本語要約</span><div style="font-size:15px;line-height:1.85;color:var(--text)">'+esc(p.summary_jp)+'</div></div>';
-    }
-    if(sumHtml){sc.innerHTML=sumHtml;document.getElementById('to-structure').style.display='block';}
+    var vc=document.getElementById('rvocab-content');
 
-    // 構文
-    if(p.structure||p.chunks||p.full_translation){
-      renderStructure(p);
-    }
-    // flashcardsをデッキに追加
-    if(p.flashcards&&p.flashcards.length){
-      p.flashcards.forEach(function(fc){
-        if(!flashDeck.some(function(d){return d.front_sentence===fc.front_sentence;})){
-          flashDeck.push(Object.assign({},fc,{
-            addedAt:new Date().toLocaleDateString('ja-JP')
-          }));
-        }
-      });
-      localStorage.setItem('flash_deck',JSON.stringify(flashDeck));
+    if(!p.vocab||!p.vocab.length){
+      vc.innerHTML='<div class="empty-state"><div class="icon">📭</div>単語を抽出できませんでした<br>別の英文で試してください</div>';
+      return;
     }
 
-    // 問題
-    if(p.questions&&p.questions.length){
-      answeredCount=0;totalQuestions=p.questions.length;
-      var qc=(document.getElementById('quiz-content')||{});
-      qc.innerHTML=p.questions.map(function(q,qi){
-        return '<div class="question-card" id="qcard-'+qi+'"><span class="q-badge">Q'+(qi+1)+' / '+p.questions.length+'</span><div class="q-text">'+esc(q.question)+'</div>'+q.choices.map(function(c,ci){
-          return '<div class="choice" id="choice-'+qi+'-'+ci+'" onclick="selectChoice('+qi+','+ci+','+q.answer+')"><div class="choice-letter">'+'ABCD'[ci]+'</div><div class="choice-text">'+esc(c.replace(/^[A-D][\.\.]\s*/,''))+'</div></div>';
-        }).join('')+'<div class="explanation" id="exp-'+qi+'">✅ '+esc(q.explanation)+'</div></div>';
-      }).join('');
-    }
+    var addedCount=0;
+    var vocabHtml='<div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">';
+    vocabHtml+='<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:0.04em;">📚 TOEIC 850+ レベル単語</div>';
+    p.vocab.forEach(function(v){
+      var word=(v.word||'').trim();
+      if(!word)return;
+      var meaning=v.meaning||'';
+      var example=v.example||'';
+      var example_jp=v.example_jp||'';
+      // "word：meaning" 形式が来た場合の保険
+      if(word.indexOf('：')>=0){var parts=word.split('：');word=parts[0].trim();meaning=meaning||parts[1]||'';}
 
-    // 単語
-    if(p.vocab&&p.vocab.length){
-      var vc=document.getElementById('rvocab-content');
-      // 新仕様：単語：意味 形式のリスト
-      var vocabHtml='<div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">';
-      vocabHtml+='<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:0.04em;">📚 TOEIC 850+ レベル単語</div>';
-      p.vocab.forEach(function(v){
-        var word=v.word||'';var meaning=v.meaning||'';
-        var example=v.example||'';var example_jp=v.example_jp||'';
-        // "word：meaning" 形式対応
-        if(word.indexOf('：')>=0){var parts=word.split('：');word=parts[0];meaning=parts[1]||meaning;}
-        vocabHtml+='<div style="padding:10px 0;border-bottom:0.5px solid var(--border);">';
-        // 単語と意味
-        vocabHtml+='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">';
-        vocabHtml+='<span style="font-size:16px;font-weight:700;color:#818cf8;">'+esc(word)+'</span>';
-        vocabHtml+='<span style="font-size:14px;color:var(--muted);">'+esc(meaning)+'</span>';
-        vocabHtml+='</div>';
-        // 例文
-        if(example){
-          vocabHtml+='<div style="font-size:13px;color:var(--text);line-height:1.6;border-left:2px solid var(--blue);padding-left:8px;margin-top:4px;">'+esc(example)+'</div>';
-          if(example_jp){
-            vocabHtml+='<div style="font-size:12px;color:var(--muted);padding-left:10px;margin-top:2px;">'+esc(example_jp)+'</div>';
-          }
-        }
-        vocabHtml+='</div>';
-      });
+      vocabHtml+='<div style="padding:10px 0;border-bottom:0.5px solid var(--border);">';
+      vocabHtml+='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">';
+      vocabHtml+='<span style="font-size:16px;font-weight:700;color:#818cf8;">'+esc(word)+'</span>';
+      vocabHtml+='<span style="font-size:14px;color:var(--muted);">'+esc(meaning)+'</span>';
       vocabHtml+='</div>';
-      vc.innerHTML=vocabHtml;
-      // コーチから会話へ誘う
-      var topicText=document.getElementById('reading-input').value.slice(0,50)||'英文トレーニング';
-      showCoachInvite(topicText);
-      // フラッシュカードに追加
-      p.vocab.forEach(function(v){
-        if(!flashDeck.some(function(d){return d.word.toLowerCase()===v.word.toLowerCase();})){
-          flashDeck.push(Object.assign({},v,{addedAt:new Date().toLocaleDateString('ja-JP')}));
+      if(example){
+        vocabHtml+='<div style="font-size:13px;color:var(--text);line-height:1.6;border-left:2px solid var(--blue);padding-left:8px;margin-top:4px;">'+esc(example)+'</div>';
+        if(example_jp){
+          vocabHtml+='<div style="font-size:12px;color:var(--muted);padding-left:10px;margin-top:2px;">'+esc(example_jp)+'</div>';
         }
-      });
-      localStorage.setItem('flash_deck',JSON.stringify(flashDeck));
-      (document.getElementById('to-rvocab')||{}).style.display='block';
+      }
+      vocabHtml+='</div>';
+
+      // フラッシュカードに追加（重複チェック）
+      if(!flashDeck.some(function(d){return d.word&&d.word.toLowerCase()===word.toLowerCase();})){
+        flashDeck.push({
+          word:word,
+          pos:v.pos||'',
+          meaning:meaning,
+          example:example,
+          example_jp:example_jp,
+          front_sentence:v.front_sentence||example,
+          front_jp:v.front_jp||example_jp,
+          answer:v.answer||word,
+          addedAt:new Date().toLocaleDateString('ja-JP')
+        });
+        addedCount++;
+      }
+    });
+    vocabHtml+='</div>';
+    if(addedCount>0){
+      vocabHtml+='<div style="margin-top:10px;font-size:12px;color:var(--green);text-align:center;">✅ '+addedCount+'語をフラッシュカードに追加しました</div>';
     }
+    vc.innerHTML=vocabHtml;
+    localStorage.setItem('flash_deck',JSON.stringify(flashDeck));
+
+    // コーチから会話へ誘う
+    var topicText=document.getElementById('reading-input').value.slice(0,50)||'英文トレーニング';
+    showCoachInvite(topicText);
 
   }catch(err){
     console.error('analyze error:', err);
@@ -1458,7 +1441,7 @@ async function analyze(){
     }else{
       errMsg+='<span style="font-size:14px;color:var(--muted)">少し待ってから再試行してください</span>';
     }
-    document.getElementById('summary-content').innerHTML='<div class="card" style="color:var(--red);font-size:15px;">'+errMsg+'</div>';
+    document.getElementById('rvocab-content').innerHTML='<div class="card" style="color:var(--red);font-size:15px;">'+errMsg+'</div>';
   }finally{
     btn.disabled=false;
     btn.textContent='✨ 分析スタート';
@@ -1537,11 +1520,15 @@ function fcStartSession(){
       return;
     }
   }
-  fcQueue = due.slice();
-  // ランダムにシャッフル
-  fcQueue.sort(function(){ return Math.random() - 0.5; });
+  due.sort(function(){ return Math.random() - 0.5; });
+  // 1セッション50問に制限
+  var SESSION_SIZE = 50;
+  fcQueue = due.slice(0, SESSION_SIZE);
   fcSession = { total: fcQueue.length, done: 0, again: 0 };
-  document.getElementById('fc-deck-info').textContent = '今日の復習: ' + fcQueue.length + '語';
+  var remaining = due.length - fcQueue.length;
+  var info = '今日のセット: ' + fcQueue.length + 'REP';
+  if(remaining > 0) info += '（残り' + remaining + '語）';
+  document.getElementById('fc-deck-info').textContent = info;
   renderFlash();
 }
 
@@ -1580,10 +1567,10 @@ function renderFcList(){
     var mastery = getMasteryLabel(card);
     var dueStr = getDueStr(card);
     var isDueNow = isDue(card);
-    html += '<div style="background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);display:flex;align-items:center;gap:10px;">';
+    html += '<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">';
     html += '<div style="flex:1;min-width:0;">';
-    html += '<div style="font-size:15px;font-weight:700;color:var(--blue);margin-bottom:2px;">' + esc(card.word || card.front_sentence || '') + '</div>';
-    html += '<div style="font-size:12px;color:var(--muted);">' + esc(card.meaning || card.answer || '') + '</div>';
+    html += '<div style="font-size:15px;font-weight:700;color:#a78bfa;margin-bottom:2px;">' + esc(card.word || card.front_sentence || '') + '</div>';
+    html += '<div style="font-size:12px;color:rgba(255,255,255,0.6);">' + esc(card.meaning || card.answer || '') + '</div>';
     html += '</div>';
     html += '<div style="text-align:right;flex-shrink:0;">';
     html += '<div style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;margin-bottom:3px;' + mastery.style + '">' + mastery.label + '</div>';
@@ -1621,17 +1608,20 @@ function renderFlash(){
     return;
   }
   if(!fcQueue.length){
+    var c=coaches[currentCoach];
     el.innerHTML = '<div style="padding:32px 20px;text-align:center;display:flex;flex-direction:column;justify-content:center;height:100%;">' +
-      '<div style="font-size:60px;margin-bottom:16px;">🎉</div>' +
-      '<div style="font-size:22px;font-weight:800;margin-bottom:8px;">セッション完了！</div>' +
-      '<div style="background:white;border-radius:16px;padding:18px;margin:18px 0;box-shadow:0 2px 10px rgba(0,0,0,0.08);">' +
+      '<div style="width:90px;height:90px;border-radius:50%;overflow:hidden;margin:0 auto 16px;border:3px solid var(--green);"><img src="'+c.circle+'" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;"/></div>' +
+      '<div style="font-size:22px;font-weight:800;margin-bottom:6px;">本日の語彙トレ完了！💪</div>' +
+      '<div style="font-size:14px;color:var(--muted);margin-bottom:18px;">'+esc(c.name)+'「'+(fcSession.done>=fcSession.total?'全部クリア！最高だ！':'よく頑張った！')+'」</div>' +
+      '<div style="background:white;border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 2px 10px rgba(0,0,0,0.08);">' +
       '<div style="display:flex;justify-content:space-around;">' +
-      '<div><div style="font-size:26px;font-weight:800;color:var(--green);">' + fcSession.done + '</div><div style="font-size:12px;color:var(--muted);">完了</div></div>' +
-      '<div><div style="font-size:26px;font-weight:800;color:var(--red);">' + fcSession.again + '</div><div style="font-size:12px;color:var(--muted);">要復習</div></div>' +
-      '<div><div style="font-size:26px;font-weight:800;color:var(--blue);">' + fcSession.total + '</div><div style="font-size:12px;color:var(--muted);">合計</div></div>' +
+      '<div><div style="font-size:26px;font-weight:800;color:var(--green);">' + fcSession.done + '</div><div style="font-size:12px;color:var(--muted);">クリア</div></div>' +
+      '<div><div style="font-size:26px;font-weight:800;color:var(--red);">' + fcSession.again + '</div><div style="font-size:12px;color:var(--muted);">もう1セット</div></div>' +
+      '<div><div style="font-size:26px;font-weight:800;color:var(--blue);">' + fcSession.total + '</div><div style="font-size:12px;color:var(--muted);">総REP</div></div>' +
       '</div></div>' +
+      (getDueCards().length>0 ? '<button onclick="fcStartSession()" style="width:100%;padding:15px;background:linear-gradient(135deg,#FF9500,#FF3B30);border:none;border-radius:16px;color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:10px;">💪 次の50REPへ（残り'+getDueCards().length+'語）</button>' : '') +
       '<button onclick="fcShowList()" style="width:100%;padding:15px;background:var(--blue);border:none;border-radius:16px;color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">単語一覧を見る</button>' +
-      '<button onclick="fcStartSession()" style="width:100%;padding:15px;background:white;border:1.5px solid var(--border);border-radius:16px;color:var(--text);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">もう一度</button>' +
+      '<button onclick="fcStartSession()" style="width:100%;padding:15px;background:white;border:1.5px solid var(--border);border-radius:16px;color:var(--text);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">もう一度トレーニング</button>' +
       '</div>';
     return;
   }
@@ -1640,55 +1630,62 @@ function renderFlash(){
   var done = total - fcQueue.length;
   var v = fcQueue[0];
   var isCloze = !!(v.front_sentence && v.answer);
+  var c = coaches[currentCoach];
 
   var h = '';
-  // 上部：進捗バー＋カウント
+  // 上部：筋肉ゲージ風プログレス＋カウント
   h += '<div style="flex-shrink:0;padding:10px 16px 0;">';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">';
-  h += '<div style="font-size:13px;font-weight:700;color:var(--red);background:rgba(255,59,48,0.1);padding:3px 12px;border-radius:14px;">↩ ' + fcSession.again + '</div>';
-  h += '<div style="font-size:15px;font-weight:800;color:var(--muted);">' + (done+1) + ' / ' + total + '</div>';
-  h += '<div style="font-size:13px;font-weight:700;color:var(--green);background:rgba(52,199,89,0.1);padding:3px 12px;border-radius:14px;">' + fcSession.done + ' ✓</div>';
+  h += '<div style="font-size:13px;font-weight:700;color:var(--red);background:rgba(255,59,48,0.1);padding:3px 12px;border-radius:14px;">🔄 ' + fcSession.again + '</div>';
+  h += '<div style="font-size:15px;font-weight:800;color:var(--muted);">' + (done+1) + ' / ' + total + ' REP</div>';
+  h += '<div style="font-size:13px;font-weight:700;color:var(--green);background:rgba(52,199,89,0.1);padding:3px 12px;border-radius:14px;">💪 ' + fcSession.done + '</div>';
   h += '</div>';
-  h += '<div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;background:var(--blue);border-radius:2px;width:' + Math.round(done/total*100) + '%;transition:width 0.4s;"></div></div>';
+  // 筋肉ゲージ風（グラデ＋光沢）
+  h += '<div style="height:8px;background:var(--border);border-radius:5px;overflow:hidden;position:relative;"><div style="height:100%;background:linear-gradient(90deg,#FF9500,#FF3B30);border-radius:5px;width:' + Math.round(done/total*100) + '%;transition:width 0.4s;box-shadow:0 0 8px rgba(255,149,0,0.5);"></div></div>';
   h += '</div>';
 
-  // カード本体（大きくゆったり）
-  h += '<div style="flex:1;padding:16px;display:flex;flex-direction:column;min-height:300px;">';
-  h += '<div id="fc-card" onclick="flipCard()" style="flex:1;background:white;border-radius:24px;box-shadow:0 4px 20px rgba(0,0,0,0.1);position:relative;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s,opacity 0.2s;touch-action:none;">';
+  // カード本体（縦2倍・min-height拡大）
+  h += '<div style="flex:1;padding:14px 16px;display:flex;flex-direction:column;min-height:560px;position:relative;">';
+
+  // コーチアイコン（隅に小さく）
+  h += '<div id="fc-coach-corner" style="position:absolute;top:22px;right:26px;z-index:5;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);"><img src="'+c.circle+'" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;"/></div>';
+  // コーチの吹き出し（スワイプ後に表示）
+  h += '<div id="fc-coach-react" style="position:absolute;top:20px;right:78px;z-index:5;background:white;border-radius:14px;padding:6px 12px;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.15);opacity:0;transition:opacity 0.3s;"></div>';
+
+  h += '<div id="fc-card" onclick="flipCard()" style="flex:1;background:rgba(255,255,255,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.3);border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,0.3);position:relative;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s,opacity 0.2s;touch-action:none;">';
 
   // 表面
-  h += '<div id="fc-face-front" style="position:absolute;inset:0;display:flex;flex-direction:column;padding:24px;">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">';
+  h += '<div id="fc-face-front" style="position:absolute;inset:0;display:flex;flex-direction:column;padding:24px;overflow-y:auto;">';
+  h += '<div style="display:flex;justify-content:flex-start;align-items:center;flex-shrink:0;">';
   h += '<div style="width:44px;height:44px;border-radius:50%;background:rgba(102,126,234,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">🔊</div>';
-  h += '<div style="font-size:11px;color:var(--muted);font-weight:600;">' + (isCloze?'穴埋め':'単語') + '</div>';
   h += '</div>';
-  h += '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">';
+  h += '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:12px 0;">';
   if(isCloze){
-    h += '<div style="font-size:26px;font-weight:700;color:var(--text);line-height:1.5;">' + esc(v.front_sentence) + '</div>';
+    h += '<div style="font-size:25px;font-weight:700;color:var(--text);line-height:1.5;">' + esc(v.front_sentence) + '</div>';
     if(v.front_jp){ h += '<div style="font-size:15px;color:var(--muted);margin-top:16px;line-height:1.6;">' + esc(v.front_jp) + '</div>'; }
   } else {
     h += '<div style="font-size:36px;font-weight:800;color:var(--text);">' + esc(v.word||'') + '</div>';
     if(v.pos){ h += '<div style="font-size:14px;color:var(--muted);margin-top:10px;">' + esc(v.pos) + ' · TOEIC 850+</div>'; }
   }
   h += '</div>';
-  h += '<div style="text-align:center;font-size:12px;color:var(--muted);flex-shrink:0;">タップで答え · ← 要復習 · → OK · ↑ 簡単</div>';
+  h += '<div style="text-align:center;font-size:12px;color:var(--muted);flex-shrink:0;">タップで答え · ← もう1セット · → クリア · ↑ 余裕</div>';
   h += '</div>';
 
   // 裏面
-  h += '<div id="fc-face-back" style="position:absolute;inset:0;display:none;flex-direction:column;padding:24px;background:linear-gradient(160deg,#667eea,#764ba2);">';
-  h += '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">';
+  h += '<div id="fc-face-back" style="position:absolute;inset:0;display:none;flex-direction:column;padding:24px;background:linear-gradient(160deg,rgba(102,126,234,0.88),rgba(118,75,162,0.88));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow-y:auto;">';
+  h += '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:12px 0;">';
   if(isCloze){
     h += '<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:10px;">答え</div>';
     h += '<div style="font-size:34px;font-weight:800;color:white;margin-bottom:16px;">' + esc(v.answer||'') + '</div>';
-    if(v.example){ h += '<div style="font-size:15px;color:rgba(255,255,255,0.9);line-height:1.6;margin-bottom:8px;">' + esc(v.example) + '</div>'; }
-    if(v.example_jp){ h += '<div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">' + esc(v.example_jp) + '</div>'; }
+    if(v.example){ h += '<div style="font-size:16px;color:rgba(255,255,255,0.95);line-height:1.6;margin-bottom:10px;">' + esc(v.example) + '</div>'; }
+    if(v.example_jp){ h += '<div style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.6;">' + esc(v.example_jp) + '</div>'; }
   } else {
-    h += '<div style="font-size:24px;font-weight:800;color:white;margin-bottom:16px;">' + esc(v.meaning||'') + '</div>';
-    if(v.example){ h += '<div style="font-size:15px;color:rgba(255,255,255,0.9);line-height:1.6;margin-bottom:6px;">' + esc(v.example) + '</div>'; }
-    if(v.example_jp){ h += '<div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">' + esc(v.example_jp) + '</div>'; }
+    h += '<div style="font-size:26px;font-weight:800;color:white;margin-bottom:16px;">' + esc(v.meaning||'') + '</div>';
+    if(v.example){ h += '<div style="font-size:16px;color:rgba(255,255,255,0.95);line-height:1.6;margin-bottom:8px;">' + esc(v.example) + '</div>'; }
+    if(v.example_jp){ h += '<div style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.6;">' + esc(v.example_jp) + '</div>'; }
   }
   h += '</div>';
-  h += '<div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);flex-shrink:0;">← 要復習 · → OK · ↑ 簡単</div>';
+  h += '<div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7);flex-shrink:0;">← もう1セット · → クリア · ↑ 余裕</div>';
   h += '</div>';
 
   h += '</div>'; // fc-card
@@ -1772,9 +1769,27 @@ function flipCard(){
   }
 }
 
-function fcRate(quality){
+function showCoachReaction(quality){
+  var react=document.getElementById('fc-coach-react');
+  if(!react)return;
+  var reactions={
+    berry:{good:['Nice!😄','その調子！','いいね！'],easy:['余裕じゃん！🔥','さすが！'],again:['ドンマイ！','次いこ！']},
+    bell:{good:['よくできました😊','その調子！'],easy:['すばらしい！✨','完璧！'],again:['大丈夫だよ','また会えるよ']},
+    gunso:{good:['よし！💪','クリア！'],easy:['当然だ！🔥','まだまだいける！'],again:['もう一度だ！','気合いだ！']},
+    speaky:{good:['ナイス！👍','やったね！'],easy:['天才！⚡','すごい！'],again:['ファイト！','次こそ！']}
+  };
+  var r=reactions[currentCoach]||reactions.berry;
+  var pool=quality>=3?r.easy:quality>=2?r.good:r.again;
+  var msg=pool[Math.floor(Math.random()*pool.length)];
+  react.textContent=msg;
+  react.style.opacity='1';
+  setTimeout(function(){if(react)react.style.opacity='0';},900);
+}
 
-  // カードをフリップして表面に戻す
+function fcRate(quality){
+  // コーチのリアクション
+  showCoachReaction(quality);
+
   var card = document.getElementById('fc-card');
   if(card) card.classList.remove('flipped');
 
@@ -1787,6 +1802,9 @@ function fcRate(quality){
     fcQueue.push(v);
   } else {
     fcSession.done++;
+    // +1 REPアニメーション
+    var fc=document.getElementById('flash-content');
+    if(fc){var fly=document.createElement('div');fly.className='rep-fly';fly.textContent='+1 REP 💪';fc.appendChild(fly);setTimeout(function(){if(fly.parentNode)fly.parentNode.removeChild(fly);},800);}
   }
 
   // flashDeck内のカードを更新
@@ -1794,6 +1812,7 @@ function fcRate(quality){
   if(idx >= 0) flashDeck[idx] = v;
   localStorage.setItem('flash_deck', JSON.stringify(flashDeck));
   addXP(5, '単語');
+  addStudyTime(0.5);
 
   setTimeout(function(){ renderFlash(); }, 50);
 }
