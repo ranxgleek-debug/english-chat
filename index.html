@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior:none;}
 :root{--bg:#F2F2F7;--surface:#fff;--border:#E5E5EA;--text:#1C1C1E;--muted:#8E8E93;--blue:#007AFF;--green:#34C759;--orange:#FF9500;--purple:#AF52DE;--red:#FF3B30;--teal:#32ADE6;}
 body{font-family:'Noto Sans JP',-apple-system,sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
 header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
@@ -1768,6 +1769,7 @@ function setupCardSwipe(){
   }
   function onMove(e){
     if(!dragging) return;
+    if(e.cancelable)e.preventDefault();
     var t = e.touches ? e.touches[0] : e;
     curX = t.clientX - startX;
     curY = t.clientY - startY;
@@ -1808,7 +1810,7 @@ function setupCardSwipe(){
   }
 
   card.addEventListener('touchstart',onStart,{passive:true});
-  card.addEventListener('touchmove',onMove,{passive:true});
+  card.addEventListener('touchmove',onMove,{passive:false});
   card.addEventListener('touchend',onEnd);
   card.addEventListener('mousedown',onStart);
   card.addEventListener('mousemove',onMove);
