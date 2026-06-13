@@ -1488,8 +1488,7 @@ async function analyze(){
         body:JSON.stringify({
           model:groqModelR,
           messages:[{role:'user',content:prompt}],
-          max_tokens:2000,temperature:0.3,
-          response_format:{type:'json_object'}
+          max_tokens:4000,temperature:0.3
         })
       });
       var dataR=await resR.json();
@@ -1500,16 +1499,32 @@ async function analyze(){
       var resR=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+geminiModelR+':generateContent?key='+apiKey,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:2000,temperature:0.3}})
+        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4000,temperature:0.3}})
       });
       var dataR=await resR.json();
       if(dataR.error)throw new Error(dataR.error.message);
       rawR=dataR.candidates&&dataR.candidates[0]&&dataR.candidates[0].content&&dataR.candidates[0].content.parts?dataR.candidates[0].content.parts[0].text||'{}':'{}';
     }
     var jsonMatch=rawR.match(/\{[\s\S]*\}/);
-    if(!jsonMatch)throw new Error('AIの返答が不正です: '+rawR.slice(0,100));
+    var jsonStr=jsonMatch?jsonMatch[0]:rawR.slice(rawR.indexOf('{'));
+    if(!jsonStr||jsonStr.indexOf('{')!==0)throw new Error('AIの返答が不正です: '+rawR.slice(0,100));
     var p;
-    try{p=JSON.parse(jsonMatch[0]);}catch(e){throw new Error('JSON解析エラー: '+e.message);}
+    try{p=JSON.parse(jsonStr);}catch(e){
+      // 途中で切れたJSONを修復してリトライ
+      var fixed=jsonStr;
+      // 開きっぱなしの文字列を閉じる
+      var quotes=0;
+      for(var qi=0;qi<fixed.length;qi++){if(fixed[qi]==='"'&&fixed[qi-1]!=='\\')quotes++;}
+      if(quotes%2===1)fixed+='"';
+      // 括弧の不足分を閉じる
+      var ob=(fixed.match(/\{/g)||[]).length, cb=(fixed.match(/\}/g)||[]).length;
+      var oa=(fixed.match(/\[/g)||[]).length, ca=(fixed.match(/\]/g)||[]).length;
+      // 末尾のカンマや不完全要素を削る
+      fixed=fixed.replace(/,\s*$/,'');
+      for(var bi=0;bi<oa-ca;bi++)fixed+=']';
+      for(var bj=0;bj<ob-cb;bj++)fixed+='}';
+      try{p=JSON.parse(fixed);}catch(e2){throw new Error('JSON解析エラー: '+e.message);}
+    }
 
     // 要約
     // 要約（英文＋日本語）
