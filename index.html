@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{overscroll-behavior:none;}
 :root{--bg:#F2F2F7;--surface:#fff;--border:#E5E5EA;--text:#1C1C1E;--muted:#8E8E93;--blue:#007AFF;--green:#34C759;--orange:#FF9500;--purple:#AF52DE;--red:#FF3B30;--teal:#32ADE6;}
 body{font-family:'Noto Sans JP',-apple-system,sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
 header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
@@ -337,6 +336,8 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
     <!-- タブ -->
     <div style="display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:12px;padding:3px;">
       <button class="rtab active" id="rtab-input" onclick="showRTab('input')" style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.12);color:white;">入力</button>
+      <button class="rtab" id="rtab-summary" onclick="showRTab('summary')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">要約</button>
+      <button class="rtab" id="rtab-structure" onclick="showRTab('structure')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">構文</button>
       <button class="rtab" id="rtab-rvocab" onclick="showRTab('rvocab')" disabled style="flex:1;padding:7px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:transparent;color:rgba(255,255,255,0.3);">単語</button>
     </div>
   </div>
@@ -381,6 +382,18 @@ header{background:rgba(242,242,247,0.95);backdrop-filter:blur(20px);border-botto
       <button id="analyze-btn" onclick="analyze()" style="width:100%;padding:15px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);border-radius:16px;color:white;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;">
         ✨ 分析スタート
       </button>
+    </div>
+
+    <!-- 要約画面 -->
+    <div class="rscreen" id="rs-summary">
+      <div id="summary-content"></div>
+      <button class="btn-next" id="to-structure" onclick="showRTab('structure')" style="display:none;">構文解説へ →</button>
+    </div>
+
+    <!-- 構文画面 -->
+    <div class="rscreen" id="rs-structure">
+      <div id="structure-content"></div>
+      <button class="btn-next" id="to-rvocab" onclick="showRTab('rvocab')" style="display:none;">単語へ →</button>
     </div>
 
     <!-- 単語画面 -->
@@ -734,20 +747,7 @@ async function sendMessage(){
   document.getElementById('messages').appendChild(turn);scrollBottom();
   isLoading=true;document.getElementById('send-btn').disabled=true;avatarState('talking');
   conversationHistory.push({role:'user',parts:[{text:text}]});
-  if(!coaches[currentCoach]){console.error('Coach not found:',currentCoach);return;}
-  var practiceWord=window._practiceWord;
-  var practiceInstruction='';
-  var wordUsed=false;
-  if(practiceWord&&practiceWord.word){
-    var wre=new RegExp('\\b'+practiceWord.word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').slice(0,Math.max(3,practiceWord.word.length-2)),'i');
-    wordUsed=wre.test(text);
-    if(wordUsed){
-      practiceInstruction='\n\nIMPORTANT: The user just used the target word "'+practiceWord.word+'" in their message! In your "reply", briefly and warmly acknowledge that they used this word correctly (in English), then continue the conversation naturally.';
-    }else{
-      practiceInstruction='\n\nThe user is practicing the word "'+practiceWord.word+'" (meaning: '+practiceWord.meaning+'). Try to naturally encourage them to use this word in their next response, for example by asking a question that would prompt its use. Do not be too forceful or unnatural about it.';
-    }
-  }
-  var sys=coaches[currentCoach].sys_extra+' You are an English conversation partner for Japanese learners. The user speaks only English.\n\nALWAYS respond with a JSON object. NEVER add any text outside the JSON. Every field is required.\n\nJSON format:\n{"check":"Correct the user English naturally and encouragingly. Always fill.","natural":"1-2 more native-sounding English alternatives. Always fill.","natural_jp":"【必須・必ず日本語で】上記の自然な表現の日本語訳。絶対に空にしない。","reply":"Your friendly English reply. 1-3 sentences. Always fill.","japanese":"【必須・必ず日本語で】返答の日本語訳。絶対に空にしない。例：今日は何を食べましたか？","level":"A1 or A2 or B1 or B2 or C1 or C2","mistake_category":"ミスの種類(動詞活用/時制/冠詞/前置詞/語順/三単現/助動詞/名詞複数形/その他)","mistake_detail":"具体的なミス内容(例:goをwentにすべき/三単現のsが抜けている)","mistake_example":"ユーザーの間違った文そのまま","mistake_correction":"正しい文"}\n\nCRITICAL: natural_jp and japanese MUST be written in Japanese characters (hiragana/katakana/kanji). If you write English there it is WRONG.'+practiceInstruction;
+  if(!coaches[currentCoach]){console.error('Coach not found:',currentCoach);return;}var sys=coaches[currentCoach].sys_extra+' You are an English conversation partner for Japanese learners. The user speaks only English.\n\nALWAYS respond with a JSON object. NEVER add any text outside the JSON. Every field is required.\n\nJSON format:\n{"check":"Correct the user English naturally and encouragingly. Always fill.","natural":"1-2 more native-sounding English alternatives. Always fill.","natural_jp":"【必須・必ず日本語で】上記の自然な表現の日本語訳。絶対に空にしない。","reply":"Your friendly English reply. 1-3 sentences. Always fill.","japanese":"【必須・必ず日本語で】返答の日本語訳。絶対に空にしない。例：今日は何を食べましたか？","level":"A1 or A2 or B1 or B2 or C1 or C2","mistake_category":"ミスの種類(動詞活用/時制/冠詞/前置詞/語順/三単現/助動詞/名詞複数形/その他)","mistake_detail":"具体的なミス内容(例:goをwentにすべき/三単現のsが抜けている)","mistake_example":"ユーザーの間違った文そのまま","mistake_correction":"正しい文"}\n\nCRITICAL: natural_jp and japanese MUST be written in Japanese characters (hiragana/katakana/kanji). If you write English there it is WRONG.';
   try{
     var raw='';
     var jsonMatch,p;
@@ -819,12 +819,6 @@ async function sendMessage(){
     if(p.natural)html+='<div class="ai-section"><div class="section-label natural">💬 自然な言い方</div><div class="content">'+esc(p.natural)+'<div style="color:var(--muted);font-size:13px;margin-top:4px">'+esc(p.natural_jp||'')+'</div><div class="action-btns"><button class="save-btn" onclick="saveVocab(this,'+pj+','+cj+')">💾 保存</button></div></div></div>';
     if(p.reply)html+='<div class="ai-section"><div class="section-label reply">🤖 返答</div><div class="content">'+esc(p.reply)+'<div class="action-btns"><button class="speak-btn" onclick="speakText(this,this.dataset.t)" data-t="'+esc(p.reply)+'">🔊 読み上げ</button></div></div></div>';
     if(p.japanese)html+='<div class="ai-section"><div class="section-label jp">🇯🇵 日本語訳</div><div class="content jp-text">'+esc(p.japanese)+'</div></div>';
-    if(wordUsed&&practiceWord){
-      html+='<div class="ai-section" style="background:linear-gradient(135deg,rgba(52,199,89,0.12),rgba(52,199,89,0.04));border:1px solid rgba(52,199,89,0.3);border-radius:12px;padding:10px;margin-top:6px;"><div style="font-size:13px;font-weight:800;color:#34C759;">🎉 ターゲット単語「'+esc(practiceWord.word)+'」を使えました！</div></div>';
-      window._practiceWord=null;
-      var banner=document.getElementById('practice-word-banner');
-      if(banner)banner.remove();
-    }
     aiBlock.innerHTML=html;turn.appendChild(aiBlock);scrollBottom();
     // 自動読み上げ：自然な言い方 → 返答
     var speakTexts=[];
@@ -1274,46 +1268,6 @@ function goToChatWithTopic(){
   },300);
 }
 
-// 読解タブの単語を会話で練習する
-function practiceWordInChat(idx){
-  var item=window._readingVocabPool&&window._readingVocabPool[idx];
-  if(!item)return;
-  window._practiceWord=item;
-
-  showView('chat');
-  var cs=document.getElementById('home-screen');
-  var chatS=document.getElementById('chat-screen');
-  if(cs&&chatS){
-    cs.style.display='none';
-    chatS.style.display='flex';
-  }
-  setTimeout(function(){
-    var inp=document.getElementById('user-input');
-    if(inp){
-      inp.value='';
-      autoResize(inp);
-      inp.focus();
-    }
-    showPracticeWordBanner(item);
-  },300);
-}
-
-function showPracticeWordBanner(item){
-  var msgs=document.getElementById('messages');
-  if(!msgs)return;
-  var existing=document.getElementById('practice-word-banner');
-  if(existing)existing.remove();
-  var banner=document.createElement('div');
-  banner.id='practice-word-banner';
-  banner.style.cssText='margin:8px 16px;padding:12px 14px;background:linear-gradient(135deg,rgba(124,77,255,0.15),rgba(102,126,234,0.15));border:1px solid rgba(124,77,255,0.35);border-radius:14px;';
-  banner.innerHTML='<div style="font-size:12px;font-weight:800;color:#a78bfa;margin-bottom:4px;">🎯 今日のターゲット単語</div>'
-    +'<div style="font-size:18px;font-weight:800;color:white;">'+esc(item.word)+'</div>'
-    +'<div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;">'+esc(item.meaning||'')+'</div>'
-    +'<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:6px;">この単語を会話の中で使ってみよう！使えたらコーチが教えてくれます🎉</div>';
-  msgs.appendChild(banner);
-  scrollBottom();
-}
-
 function updateReadingCoachUI(){
   var c=coaches[currentCoach];
   if(!c)return;
@@ -1383,7 +1337,122 @@ async function generateText(genre){
   }
 }
 
+function renderStructure(data){
+  if(!data) return;
+  var el=document.getElementById('structure-content');
+  if(!el) return;
+  var html='';
+
+  if(!data.chunks||!data.chunks.length){
+    el.innerHTML='<div class="empty-state"><div class="icon">📭</div>データがありません</div>';
+    return;
+  }
+
+  // 再生コントロール
+  html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+  html+='<button id="chunk-play-btn" onclick="toggleChunkPlay()" style="flex:1;padding:12px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:14px;color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">▶ 自動読み上げスタート</button>';
+  html+='<select id="chunk-speed" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px;color:white;font-size:13px;font-family:inherit;outline:none;"><option value="0.8">0.8x</option><option value="0.9" selected>0.9x</option><option value="1.0">1.0x</option><option value="1.1">1.1x</option></select>';
+  html+='</div>';
+
+  var chunkIdx=0;
+  data.chunks.forEach(function(chunk,ci){
+    html+='<div class="sentence-block">';
+    if(chunk.pairs&&chunk.pairs.length){
+      // チャンク対訳（英日交互）
+      chunk.pairs.forEach(function(pair,pi){
+        var id='chunk-'+chunkIdx;
+        html+='<div class="chunk-pair" id="'+id+'" data-en="'+esc(pair.en||'').replace(/"/g,'&quot;')+'" style="display:flex;flex-direction:column;padding:8px 10px;border-radius:10px;margin-bottom:4px;transition:background 0.3s;cursor:pointer;" onclick="playOneChunk('+chunkIdx+')">';
+        html+='<div style="font-size:16px;font-weight:600;color:#818cf8;line-height:1.6;">'+esc(pair.en||'')+'</div>';
+        html+='<div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;margin-top:2px;">'+esc(pair.jp||'')+'</div>';
+        html+='</div>';
+        chunkIdx++;
+      });
+    }else if(chunk.english){
+      // 旧形式フォールバック
+      html+='<div style="font-size:15px;font-weight:600;color:#818cf8;line-height:1.9;margin-bottom:8px;">'+esc(chunk.english)+'</div>';
+      html+='<div style="font-size:14px;color:rgba(255,255,255,0.55);margin-bottom:10px;line-height:1.7;">'+esc(chunk.japanese||'')+'</div>';
+    }
+    // 単語・イディオム解説
+    if(chunk.words&&chunk.words.length){
+      html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">';
+      chunk.words.forEach(function(w){
+        html+='<div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:5px 10px;font-size:12px;">';
+        html+='<span style="font-weight:700;color:white;">'+esc(w.word)+'</span>';
+        html+='<span style="color:rgba(255,255,255,0.55);margin-left:4px;">：'+esc(w.meaning)+'</span>';
+        html+='</div>';
+      });
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+
+  el.innerHTML=html;
+}
+
+var chunkPlaying=false;
+var chunkPlayIndex=0;
+
+function toggleChunkPlay(){
+  if(chunkPlaying){
+    stopChunkPlay();
+  }else{
+    chunkPlayIndex=0;
+    startChunkPlay();
+  }
+}
+
+function stopChunkPlay(){
+  chunkPlaying=false;
+  window.speechSynthesis.cancel();
+  var btn=document.getElementById('chunk-play-btn');
+  if(btn)btn.textContent='▶ 自動読み上げスタート';
+  document.querySelectorAll('.chunk-pair').forEach(function(c){c.style.background='';});
+}
+
+function startChunkPlay(){
+  chunkPlaying=true;
+  var btn=document.getElementById('chunk-play-btn');
+  if(btn)btn.textContent='⏸ 停止';
+  playChunkAt(chunkPlayIndex);
+}
+
+function playChunkAt(i){
+  if(!chunkPlaying)return;
+  var el=document.getElementById('chunk-'+i);
+  if(!el){stopChunkPlay();return;}
+  // ハイライト
+  document.querySelectorAll('.chunk-pair').forEach(function(c){c.style.background='';});
+  el.style.background='rgba(167,139,250,0.2)';
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  // 読み上げ
+  var text=el.getAttribute('data-en');
+  var u=new SpeechSynthesisUtterance(text);
+  applyCoachVoice(u);
+  var speedSel=document.getElementById('chunk-speed');
+  if(speedSel)u.rate=parseFloat(speedSel.value);
+  u.onend=function(){
+    chunkPlayIndex=i+1;
+    setTimeout(function(){playChunkAt(chunkPlayIndex);},250);
+  };
+  u.onerror=function(){stopChunkPlay();};
+  window.speechSynthesis.speak(u);
+}
+
+function playOneChunk(i){
+  stopChunkPlay();
+  var el=document.getElementById('chunk-'+i);
+  if(!el)return;
+  el.style.background='rgba(167,139,250,0.2)';
+  var u=new SpeechSynthesisUtterance(el.getAttribute('data-en'));
+  applyCoachVoice(u);
+  var speedSel=document.getElementById('chunk-speed');
+  if(speedSel)u.rate=parseFloat(speedSel.value);
+  u.onend=function(){el.style.background='';};
+  window.speechSynthesis.speak(u);
+}
+
 function showRTab(name){document.querySelectorAll('.rscreen').forEach(function(s){s.classList.remove('active');});document.querySelectorAll('.rtab').forEach(function(t){t.classList.remove('active');});document.getElementById('rs-'+name).classList.add('active');document.getElementById('rtab-'+name).classList.add('active');}
+function useSample(i){document.getElementById('reading-input').value=samples[i];}
 async function analyze(){
   var text=document.getElementById('reading-input').value.trim();
   if(!text){alert('英文を入力してください');return;}
@@ -1393,11 +1462,21 @@ async function analyze(){
   btn.textContent='⏳ 分析中...';
 
   // タブ有効化・ローディング
-  document.getElementById('rtab-rvocab').disabled=false;
-  document.getElementById('rvocab-content').innerHTML='<div class="loading"><div class="spinner"></div>分析中...</div>';
-  showRTab('rvocab');
+  ['summary','structure','rvocab'].forEach(function(id){
+    document.getElementById('rtab-'+id).disabled=false;
+  });
+  document.getElementById('summary-content').innerHTML='<div class="loading"><div class="spinner"></div>分析中...</div>';
+  document.getElementById('structure-content').innerHTML='';
+  (document.getElementById('quiz-content')||{}).innerHTML='';
+  document.getElementById('rvocab-content').innerHTML='';
+  document.getElementById('to-structure').style.display='none';
+  document.getElementById('to-quiz').style.display='none';
+  (document.getElementById('to-rvocab')||{}).style.display='none';
+  showRTab('summary');
 
-  var prompt='You are helping a Japanese learner studying for TOEIC 900+. Extract important vocabulary from the following English text. Respond ONLY with valid JSON, no markdown, no code fences.\n\nTEXT: '+text.slice(0,3000)+'\n\nJSON format:\n{\n"vocab":[{"word":"the word as it appears in a dictionary (base form)","meaning":"単語の意味を必ず日本語で記述すること（例：「〜を軽減する」「厳格な」など）","example":"a natural English example sentence using the word (can be different from the source text)","example_jp":"上のexampleの完全な日本語訳を必ず記述すること","pos":"noun/verb/adjective/adverb/etc","front_sentence":"same as example but with the key word replaced by blanks showing first 1-2 letters and last letter, e.g. d_______e for \'discrepancy\', matching word length","front_jp":"front_jp must be the SAME Japanese text as example_jp","answer":"the word in the exact form used in front_sentence (matches the blanked word)"}]\n}\n\nCRITICAL RULES (failure to follow these makes the output useless):\n- "meaning" and "example_jp" and "front_jp" MUST be written in Japanese (日本語). NEVER leave them empty or in English. This is the most important requirement.\n- Extract 8-12 words/phrases at TOEIC 850+ level only. Skip basic/common words.\n- Prioritize words that are central to understanding this specific text (business, finance, news vocabulary etc).\n- Each word must have a complete, natural example sentence (8-20 words) in English, plus its full Japanese translation in example_jp.\n- front_sentence must be a cloze (fill-in-the-blank) version of the example sentence with the target word masked, showing only the first 1-2 letters and the last 1 letter, with underscores for the middle letters (total underscores+letters = word length). Example: "accommodate" -> "a__________e".\n- pos should be one of: noun, verb, adjective, adverb\n- Output ONLY the JSON object, nothing else.';
+  // gemini-2.0-flash（高速・安定）
+  var model=currentModel;
+  var prompt='Analyze this English text for Japanese learners. Respond ONLY with valid JSON, no markdown.\n\nTEXT: '+text.slice(0,1500)+'\n\nJSON format:\n{\n"summary_en":"English summary 2-3 sentences",\n"summary_jp":"Japanese summary 2-3 sentences",\n"chunks":[{"pairs":[{"en":"meaningful phrase chunk (3-7 words)","jp":"その部分の日本語訳"}],"words":[{"word":"idiom or word","meaning":"Japanese meaning"}]}],\n"vocab":[{"word":"TOEIC850+ word","meaning":"Japanese meaning e.g. temporary：仮設の","example":"Short example sentence using the word","example_jp":"Japanese translation of example"}],\n"flashcards":[{"front_sentence":"sentence with key word replaced by blanks like t_______y","front_jp":"Japanese translation","answer":"the missing word","word":"the key word","pos":"noun/verb/etc","meaning":"Japanese meaning","example":"example sentence using the word","example_jp":"Japanese translation of example"}]\n}\n\nRules:\n- summary_en: 2-3 sentences in English\n- summary_jp: 2-3 sentences in Japanese\n- chunks: split text into sentences. For each sentence, break it into meaningful phrase chunks (3-7 words each) as pairs array. Each pair = {en: phrase, jp: Japanese translation of that phrase}. Translate each chunk so reading pairs in order makes sense in Japanese\n- chunks words: pick 2-4 important idioms or expressions per sentence with Japanese meanings\n- vocab: TOEIC 850+ level only, format "word：Japanese meaning", 8-12 words, NO basic words. Add a short example sentence and its Japanese translation for each word\n- flashcards: 6-8 cloze cards using TOEIC 800+ vocabulary with example sentences\n- All Japanese values must be in Japanese';
 
   try{
     var rawR='';
@@ -1432,67 +1511,85 @@ async function analyze(){
     var p;
     try{p=JSON.parse(jsonMatch[0]);}catch(e){throw new Error('JSON解析エラー: '+e.message);}
 
-    var vc=document.getElementById('rvocab-content');
-
-    if(!p.vocab||!p.vocab.length){
-      vc.innerHTML='<div class="empty-state"><div class="icon">📭</div>単語を抽出できませんでした<br>別の英文で試してください</div>';
-      return;
+    // 要約
+    // 要約（英文＋日本語）
+    var sc=document.getElementById('summary-content');
+    var sumHtml='';
+    if(p.summary_en){
+      sumHtml+='<div class="card"><span class="summary-badge">🇺🇸 English Summary</span><div style="font-size:15px;line-height:1.85;color:var(--text)">'+esc(p.summary_en)+'</div></div>';
     }
+    if(p.summary_jp){
+      sumHtml+='<div class="card"><span class="summary-badge" style="background:rgba(255,149,0,0.1);color:var(--orange);">🇯🇵 日本語要約</span><div style="font-size:15px;line-height:1.85;color:var(--text)">'+esc(p.summary_jp)+'</div></div>';
+    }
+    if(sumHtml){sc.innerHTML=sumHtml;document.getElementById('to-structure').style.display='block';}
 
-    var addedCount=0;
-    window._readingVocabPool=[];
-    var vocabHtml='<div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">';
-    vocabHtml+='<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:0.04em;">📚 TOEIC 850+ レベル単語</div>';
-    p.vocab.forEach(function(v){
-      var word=(v.word||'').trim();
-      if(!word)return;
-      var meaning=v.meaning||'';
-      var example=v.example||'';
-      var example_jp=v.example_jp||'';
-      // "word：meaning" 形式が来た場合の保険
-      if(word.indexOf('：')>=0){var parts=word.split('：');word=parts[0].trim();meaning=meaning||parts[1]||'';}
-
-      vocabHtml+='<div style="padding:10px 0;border-bottom:0.5px solid var(--border);">';
-      vocabHtml+='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">';
-      vocabHtml+='<span style="font-size:16px;font-weight:700;color:#818cf8;">'+esc(word)+'</span>';
-      vocabHtml+='<span style="font-size:14px;color:var(--muted);">'+esc(meaning||'（日本語訳なし）')+'</span>';
-      vocabHtml+='</div>';
-      if(example){
-        vocabHtml+='<div style="font-size:13px;color:var(--text);line-height:1.6;border-left:2px solid var(--blue);padding-left:8px;margin-top:4px;">'+esc(example)+'</div>';
-        if(example_jp){
-          vocabHtml+='<div style="font-size:12px;color:var(--muted);padding-left:10px;margin-top:2px;">'+esc(example_jp)+'</div>';
+    // 構文
+    if(p.structure||p.chunks||p.full_translation){
+      renderStructure(p);
+    }
+    // flashcardsをデッキに追加
+    if(p.flashcards&&p.flashcards.length){
+      p.flashcards.forEach(function(fc){
+        if(!flashDeck.some(function(d){return d.front_sentence===fc.front_sentence;})){
+          flashDeck.push(Object.assign({},fc,{
+            addedAt:new Date().toLocaleDateString('ja-JP')
+          }));
         }
-      }
-      vocabHtml+='<button onclick="practiceWordInChat('+(window._readingVocabPool.length)+')" style="margin-top:8px;font-size:12px;font-weight:700;color:#7c4dff;background:rgba(124,77,255,0.08);border:1px solid rgba(124,77,255,0.25);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;">💬 この単語で話す</button>';
-      vocabHtml+='</div>';
-      window._readingVocabPool.push({word:word,meaning:meaning,example:example,example_jp:example_jp});
-
-      // フラッシュカードに追加（重複チェック）
-      if(!flashDeck.some(function(d){return d.word&&d.word.toLowerCase()===word.toLowerCase();})){
-        flashDeck.push({
-          word:word,
-          pos:v.pos||'',
-          meaning:meaning,
-          example:example,
-          example_jp:example_jp,
-          front_sentence:v.front_sentence||example,
-          front_jp:v.front_jp||example_jp,
-          answer:v.answer||word,
-          addedAt:new Date().toLocaleDateString('ja-JP')
-        });
-        addedCount++;
-      }
-    });
-    vocabHtml+='</div>';
-    if(addedCount>0){
-      vocabHtml+='<div style="margin-top:10px;font-size:12px;color:var(--green);text-align:center;">✅ '+addedCount+'語をフラッシュカードに追加しました</div>';
+      });
+      localStorage.setItem('flash_deck',JSON.stringify(flashDeck));
     }
-    vc.innerHTML=vocabHtml;
-    localStorage.setItem('flash_deck',JSON.stringify(flashDeck));
 
-    // コーチから会話へ誘う
-    var topicText=document.getElementById('reading-input').value.slice(0,50)||'英文トレーニング';
-    showCoachInvite(topicText);
+    // 問題
+    if(p.questions&&p.questions.length){
+      answeredCount=0;totalQuestions=p.questions.length;
+      var qc=(document.getElementById('quiz-content')||{});
+      qc.innerHTML=p.questions.map(function(q,qi){
+        return '<div class="question-card" id="qcard-'+qi+'"><span class="q-badge">Q'+(qi+1)+' / '+p.questions.length+'</span><div class="q-text">'+esc(q.question)+'</div>'+q.choices.map(function(c,ci){
+          return '<div class="choice" id="choice-'+qi+'-'+ci+'" onclick="selectChoice('+qi+','+ci+','+q.answer+')"><div class="choice-letter">'+'ABCD'[ci]+'</div><div class="choice-text">'+esc(c.replace(/^[A-D][\.\.]\s*/,''))+'</div></div>';
+        }).join('')+'<div class="explanation" id="exp-'+qi+'">✅ '+esc(q.explanation)+'</div></div>';
+      }).join('');
+    }
+
+    // 単語
+    if(p.vocab&&p.vocab.length){
+      var vc=document.getElementById('rvocab-content');
+      // 新仕様：単語：意味 形式のリスト
+      var vocabHtml='<div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">';
+      vocabHtml+='<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:0.04em;">📚 TOEIC 850+ レベル単語</div>';
+      p.vocab.forEach(function(v){
+        var word=v.word||'';var meaning=v.meaning||'';
+        var example=v.example||'';var example_jp=v.example_jp||'';
+        // "word：meaning" 形式対応
+        if(word.indexOf('：')>=0){var parts=word.split('：');word=parts[0];meaning=parts[1]||meaning;}
+        vocabHtml+='<div style="padding:10px 0;border-bottom:0.5px solid var(--border);">';
+        // 単語と意味
+        vocabHtml+='<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">';
+        vocabHtml+='<span style="font-size:16px;font-weight:700;color:#818cf8;">'+esc(word)+'</span>';
+        vocabHtml+='<span style="font-size:14px;color:var(--muted);">'+esc(meaning)+'</span>';
+        vocabHtml+='</div>';
+        // 例文
+        if(example){
+          vocabHtml+='<div style="font-size:13px;color:var(--text);line-height:1.6;border-left:2px solid var(--blue);padding-left:8px;margin-top:4px;">'+esc(example)+'</div>';
+          if(example_jp){
+            vocabHtml+='<div style="font-size:12px;color:var(--muted);padding-left:10px;margin-top:2px;">'+esc(example_jp)+'</div>';
+          }
+        }
+        vocabHtml+='</div>';
+      });
+      vocabHtml+='</div>';
+      vc.innerHTML=vocabHtml;
+      // コーチから会話へ誘う
+      var topicText=document.getElementById('reading-input').value.slice(0,50)||'英文トレーニング';
+      showCoachInvite(topicText);
+      // フラッシュカードに追加
+      p.vocab.forEach(function(v){
+        if(!flashDeck.some(function(d){return d.word.toLowerCase()===v.word.toLowerCase();})){
+          flashDeck.push(Object.assign({},v,{addedAt:new Date().toLocaleDateString('ja-JP')}));
+        }
+      });
+      localStorage.setItem('flash_deck',JSON.stringify(flashDeck));
+      (document.getElementById('to-rvocab')||{}).style.display='block';
+    }
 
   }catch(err){
     console.error('analyze error:', err);
@@ -1504,7 +1601,7 @@ async function analyze(){
     }else{
       errMsg+='<span style="font-size:14px;color:var(--muted)">少し待ってから再試行してください</span>';
     }
-    document.getElementById('rvocab-content').innerHTML='<div class="card" style="color:var(--red);font-size:15px;">'+errMsg+'</div>';
+    document.getElementById('summary-content').innerHTML='<div class="card" style="color:var(--red);font-size:15px;">'+errMsg+'</div>';
   }finally{
     btn.disabled=false;
     btn.textContent='✨ 分析スタート';
@@ -1769,7 +1866,6 @@ function setupCardSwipe(){
   }
   function onMove(e){
     if(!dragging) return;
-    if(e.cancelable)e.preventDefault();
     var t = e.touches ? e.touches[0] : e;
     curX = t.clientX - startX;
     curY = t.clientY - startY;
@@ -1810,7 +1906,7 @@ function setupCardSwipe(){
   }
 
   card.addEventListener('touchstart',onStart,{passive:true});
-  card.addEventListener('touchmove',onMove,{passive:false});
+  card.addEventListener('touchmove',onMove,{passive:true});
   card.addEventListener('touchend',onEnd);
   card.addEventListener('mousedown',onStart);
   card.addEventListener('mousemove',onMove);
